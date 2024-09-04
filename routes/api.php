@@ -18,6 +18,8 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
 
 Route::post('/chapters', [ChapterController::class, 'store']);
+//route pour l'upload d'une video à un chapitre
+Route::post('/chapters/{chapter}/upload-video', [ChapterController::class, 'uploadVideo']);
 
 // Ajoute une route pour permettre la conversion du PDF en images.
 Route::get('/chapters/{id}/convert', [ChapterController::class, 'convertToImages']);

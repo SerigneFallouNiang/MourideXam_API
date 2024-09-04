@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Http\Request;
 use App\Models\Chapter;
 use Spatie\PdfToImage\Pdf;
 use App\Http\Requests\StoreChapterRequest;
@@ -51,13 +51,6 @@ class ChapterController extends Controller
         return response()->json(['message' => 'Chapitre créé avec succès', 'chapter' => $chapter], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Chapter $chapter)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -85,35 +78,6 @@ class ChapterController extends Controller
 
 
 
-    // Cette méthode convertit chaque page du PDF en image et les enregistre dans storage/app/public/images/. 
-    // public function convertToImages($chapterId)
-    // {
-    //     // Récupérer le chapitre
-    //     $chapter = Chapter::findOrFail($chapterId);
-
-    //     // Chemin complet vers le fichier PDF
-    //     $pdfPath = storage_path('app/' . $chapter->file_path);
-
-    //     // Initialiser l'objet Pdf avec le fichier
-    //     $pdf = new Pdf($pdfPath);
-
-    //     // Stocker les images générées
-    //     $images = [];
-
-    //     // Convertir chaque page du PDF en image
-    //     for ($page = 1; $page <= $pdf->getNumberOfPages(); $page++) {
-    //         $pdf->setPage($page);
-
-    //         // Chemin de l'image à enregistrer
-    //         $imagePath = 'public/images/chapter_' . $chapterId . '_page_' . $page . '.png';
-    //         $pdf->saveImage(storage_path('app/' . $imagePath));
-
-    //         // Ajouter le chemin de l'image générée à la liste
-    //         $images[] = Storage::url($imagePath); // URL de l'image
-    //     }
-
-    //     return response()->json(['message' => 'PDF converti avec succès en images', 'images' => $images]);
-    // }
 
     /**
      * Retourner le fichier PDF du chapitre spécifié.
@@ -136,5 +100,31 @@ class ChapterController extends Controller
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . basename($pdfPath) . '"'
         ]);
+    }
+
+//fonction pour uploader une video pour un chapitre
+    public function uploadVideo(Request $request, $chapterId)
+    {
+        $request->validate([
+            'video' => 'required|mimes:mp4,avi,mov|max:20000', 
+        ]);
+
+        $chapter = Chapter::findOrFail($chapterId);
+
+        // Ajoutez la vidéo au chapitre
+        $chapter->addVideo($request->file('video'));
+
+        return response()->json(['message' => 'Video uploaded successfully']);
+    }
+
+
+    
+    //afficher un video
+    public function readVideo($id)
+    {
+        $chapter = Chapter::findOrFail($id);
+        $videos = $chapter->videos;
+
+        return view('chapters.show', compact('chapter', 'videos'));
     }
 }
