@@ -119,12 +119,25 @@ class ChapterController extends Controller
 
 
     
-    //afficher un video
-    public function readVideo($id)
-    {
-        $chapter = Chapter::findOrFail($id);
-        $videos = $chapter->videos;
 
-        return view('chapters.show', compact('chapter', 'videos'));
-    }
+     // Afficher la vidéo d'un chapitre
+     public function readVideo($id)
+     {
+         $chapter = Chapter::findOrFail($id);
+         $video = $chapter->relationvideos->first(); // Obtenir la première vidéo, s'il y en a une
+ 
+         if (!$video) {
+             return response()->json(['message' => 'No video found for this chapter'], 404);
+         }
+ 
+         return response()->json([
+             'chapter' => $chapter,
+             'video' => [
+                 'id' => $video->id,
+                 'url' => $video->getUrl(), // Obtenir l'URL de la vidéo
+                 'name' => $video->name, // Nom du fichier vidéo
+                 'mime_type' => $video->mime_type // Type MIME
+             ]
+         ]);
+     }
 }

@@ -14,7 +14,7 @@ class Chapter extends Model  implements HasMedia
     // Ajoutez ici les colonnes autorisées pour l'assignation de masse
     protected $fillable = ['title', 'description', 'file_path'];
 
-    
+
 
       // Méthode pour ajouter une vidéo au chapitre
       public function addVideo($file)
@@ -28,4 +28,11 @@ class Chapter extends Model  implements HasMedia
       {
           return $this->getMedia('videos');
       }
+
+
+       // Méthode pour définir la relation avec les vidéos
+    public function relationvideos()
+    {
+        return $this->media()->where('collection_name', 'videos');
+    }
 }
