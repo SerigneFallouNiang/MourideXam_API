@@ -1,15 +1,24 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Http\Request;
 use App\Models\Chapter;
 use Spatie\PdfToImage\Pdf;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreChapterRequest;
 use App\Http\Requests\UpdateChapterRequest;
-use Illuminate\Support\Facades\Storage;
 
 class ChapterController extends Controller
 {
+
+    function __construct()
+    {
+         $this->middleware('permission:category-list|category-create|category-edit|category-delete', ['only' => ['index','show']]);
+         $this->middleware('permission:category-create', ['only' => ['create','store']]);
+         $this->middleware('permission:category-edit', ['only' => ['edit','update']]);
+         $this->middleware('permission:category-delete', ['only' => ['destroy']]);
+    }
     /**
      * Display a listing of the resource.
      */
