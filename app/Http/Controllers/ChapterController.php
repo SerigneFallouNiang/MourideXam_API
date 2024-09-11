@@ -12,19 +12,20 @@ use App\Http\Requests\UpdateChapterRequest;
 class ChapterController extends Controller
 {
 
-    function __construct()
-    {
-         $this->middleware('permission:category-list|category-create|category-edit|category-delete', ['only' => ['index','show']]);
-         $this->middleware('permission:category-create', ['only' => ['create','store']]);
-         $this->middleware('permission:category-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:category-delete', ['only' => ['destroy']]);
-    }
+    // function __construct()
+    // {
+    //      $this->middleware('permission:category-list|category-create|category-edit|category-delete', ['only' => ['index','show']]);
+    //      $this->middleware('permission:category-create', ['only' => ['create','store']]);
+    //      $this->middleware('permission:category-edit', ['only' => ['edit','update']]);
+    //      $this->middleware('permission:category-delete', ['only' => ['destroy']]);
+    // }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $chapter = Chapter::all();
+        return response()->json(['message' => 'Liste des chapitres', 'Chapitre' => $chapter], 201);
     }
 
     /**
@@ -43,7 +44,9 @@ class ChapterController extends Controller
          // Valider la requête
          $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
+            'lien' => 'nullable|string',
+            "book_id" => ["required", "exists:books,id"],
             'pdf' => 'required|mimes:pdf|max:10000', // Taille maximale de 10 Mo
         ]);
 
@@ -54,7 +57,9 @@ class ChapterController extends Controller
         $chapter = Chapter::create([
             'title' => $request->title,
             'description' => $request->description,
+            'lien' => $request->lien,
             'file_path' => $filePath,
+            'book_id' =>$request->book_id,
         ]);
 
         return response()->json(['message' => 'Chapitre créé avec succès', 'chapter' => $chapter], 201);
@@ -74,7 +79,22 @@ class ChapterController extends Controller
      */
     public function update(UpdateChapterRequest $request, Chapter $chapter)
     {
-        //
+        $validatedData = $request->validated();
+    
+        // Gérer le fichier PDF
+        if ($request->hasFile('pdf')) {
+            // Supprimer l'ancien fichier s'il existe
+            if ($chapter->file_path) {
+                Storage::delete($chapter->file_path);
+            }
+            // Stocker le nouveau fichier PDF
+            $validatedData['file_path'] = $request->file('pdf')->store('public/pdf');
+        }
+    
+        // Mettre à jour le chapitre
+        $chapter->update($validatedData);
+    
+        return response()->json(['message' => 'Chapitre mis à jour avec succès', 'chapter' => $chapter], 200);
     }
 
     /**
@@ -82,7 +102,8 @@ class ChapterController extends Controller
      */
     public function destroy(Chapter $chapter)
     {
-        //
+        $chapter->delete();
+        return response()->json(['message' => 'Chapitre supprimé avec succès', 'Chapitre' => $chapter], 201);
     }
 
 

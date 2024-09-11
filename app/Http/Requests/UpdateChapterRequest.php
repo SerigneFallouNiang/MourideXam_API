@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateChapterRequest extends FormRequest
 {
@@ -11,7 +13,7 @@ class UpdateChapterRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +24,19 @@ class UpdateChapterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'lien' => 'nullable|string',
+            "book_id" => ["sometimes", "exists:books,id"],
+            'pdf' => 'nullable|mimes:pdf|max:10000', // Taille maximale de 10 Mo
         ];
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json(
+            ['success' => false, 'errors' => $validator->errors()],
+            422
+        ));
     }
 }

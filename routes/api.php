@@ -35,12 +35,14 @@ Route::delete('categories_mass_destroy', [CategoryController::class, 'massDestro
 
 
 //livres 
-Route::apiResource('livres', BookController::class)->only('store', 'destroy');
-Route::apiResource('livres', BookController::class)->only('index', 'show');
-Route::post('livres/{livre}', [BookController::class, 'update']);
+Route::apiResource('books', BookController::class)->only('store', 'destroy');
+Route::apiResource('books', BookController::class)->only('index', 'show');
+Route::post('books/{book}', [BookController::class, 'update']);
 
 
-Route::post('/chapters', [ChapterController::class, 'store']);
+// Route::post('/chapters', [ChapterController::class, 'store']);
+// Route::get('/chapters', [ChapterController::class, 'index']);
+Route::apiResource('chapters', ChapterController::class);
 //route pour l'upload d'une video à un chapitre
 Route::post('/chapters/{chapter}/upload-video', [ChapterController::class, 'uploadVideo']);
 //lire video 
