@@ -35,9 +35,9 @@ Route::delete('categories_mass_destroy', [CategoryController::class, 'massDestro
 
 
 //livres 
-Route::apiResource('livres', BookController::class)->only('store', 'destroy');
-Route::apiResource('livres', BookController::class)->only('index', 'show');
-Route::post('livres/{livre}', [BookController::class, 'update']);
+Route::apiResource('books', BookController::class)->only('store', 'destroy');
+Route::apiResource('books', BookController::class)->only('index', 'show');
+Route::post('books/{book}', [BookController::class, 'update']);
 
 
 Route::post('/chapters', [ChapterController::class, 'store']);

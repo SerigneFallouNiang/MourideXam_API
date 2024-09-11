@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Book;
 
 return new class extends Migration
 {
@@ -14,8 +15,10 @@ return new class extends Migration
         Schema::create('chapters', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->text('description')->nullable();
-            $table->string('file_path'); // Chemin vers le fichier PDF
+            $table->string('lien')->nullable();
+            $table->text('description');
+            $table->foreignIdFor(Book::class)->constrained('books')->onDelete('cascade');
+            $table->string('file_path');
             $table->timestamps();
         });
     }

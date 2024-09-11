@@ -12,13 +12,13 @@ use App\Http\Requests\UpdateChapterRequest;
 class ChapterController extends Controller
 {
 
-    function __construct()
-    {
-         $this->middleware('permission:category-list|category-create|category-edit|category-delete', ['only' => ['index','show']]);
-         $this->middleware('permission:category-create', ['only' => ['create','store']]);
-         $this->middleware('permission:category-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:category-delete', ['only' => ['destroy']]);
-    }
+    // function __construct()
+    // {
+    //      $this->middleware('permission:category-list|category-create|category-edit|category-delete', ['only' => ['index','show']]);
+    //      $this->middleware('permission:category-create', ['only' => ['create','store']]);
+    //      $this->middleware('permission:category-edit', ['only' => ['edit','update']]);
+    //      $this->middleware('permission:category-delete', ['only' => ['destroy']]);
+    // }
     /**
      * Display a listing of the resource.
      */
@@ -43,7 +43,9 @@ class ChapterController extends Controller
          // Valider la requête
          $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
+            'lien' => 'nullable|string',
+            "book_id" => ["required", "exists:books,id"],
             'pdf' => 'required|mimes:pdf|max:10000', // Taille maximale de 10 Mo
         ]);
 
@@ -54,7 +56,9 @@ class ChapterController extends Controller
         $chapter = Chapter::create([
             'title' => $request->title,
             'description' => $request->description,
+            'lien' => $request->lien,
             'file_path' => $filePath,
+            'book_id' =>$request->book_id,
         ]);
 
         return response()->json(['message' => 'Chapitre créé avec succès', 'chapter' => $chapter], 201);
