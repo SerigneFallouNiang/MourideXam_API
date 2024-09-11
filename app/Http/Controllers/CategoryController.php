@@ -10,13 +10,13 @@ class CategoryController extends Controller
 {
 
 
-    function __construct()
-    {
-         $this->middleware('permission:category-list|category-create|category-edit|category-delete', ['only' => ['index','show']]);
-         $this->middleware('permission:category-create', ['only' => ['create','store']]);
-         $this->middleware('permission:category-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:category-delete', ['only' => ['destroy']]);
-    }
+    // function __construct()
+    // {
+    //      $this->middleware('permission:category-list|category-create|category-edit|category-delete', ['only' => ['index','show']]);
+    //      $this->middleware('permission:category-create', ['only' => ['create','store']]);
+    //      $this->middleware('permission:category-edit', ['only' => ['edit','update']]);
+    //      $this->middleware('permission:category-delete', ['only' => ['destroy']]);
+    // }
     /**
      * Display a listing of the resource.
      */
@@ -54,7 +54,7 @@ class CategoryController extends Controller
     {
         $category->update($request->validated());
 
-        return response()->json(['message' => 'Catégorie modifiée avec succès', 'Catégorie' => $categories], 201);
+        return response()->json(['message' => 'Catégorie modifiée avec succès', 'Catégorie' => $category], 201);
     }
 
     /**
@@ -64,7 +64,7 @@ class CategoryController extends Controller
     {
         $category->delete();
 
-        return response()->json(['message' => 'Catégorie supprimée avec succès'], 201);
+        return response()->json(['message' => 'Catégorie supprimée avec succès',$category], 201);
 
     }
 

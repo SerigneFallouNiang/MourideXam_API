@@ -2,8 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ChapterController;
+use App\Http\Controllers\BookController;
 
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserAuthController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -13,6 +15,29 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
+
+Route::middleware('auth:sanctum')->group(function () {
+  Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+  Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
+  Route::get('/roles/{id}', [RoleController::class, 'show'])->name('roles.show');
+  Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
+  Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
+
+  Route::get('/permissions', [RoleController::class, 'listPermission'])->name('permissions.list');
+});
+
+// Route::group(['middleware' => ['auth:sanctum']], function() {
+// categories
+Route::resource('categories',CategoryController::class);
+Route::delete('categories_mass_destroy', [CategoryController::class, 'massDestroy'])->name('categories.mass_destroy');
+
+// });
+
+
+//livres 
+Route::apiResource('livres', BookController::class)->only('store', 'destroy');
+Route::apiResource('livres', BookController::class)->only('index', 'show');
+Route::post('livres/{livre}', [BookController::class, 'update']);
 
 
 Route::post('/chapters', [ChapterController::class, 'store']);
@@ -30,12 +55,7 @@ Route::get('/chapter/{id}/download', [ChapterController::class, 'downloadPdf']);
 
 
 
-Route::group(['middleware' => ['auth:api']], function() {
-// categories
-Route::resource('categories',CategoryController::class);
-Route::delete('categories_mass_destroy', [CategoryController::class, 'massDestroy'])->name('categories.mass_destroy');
 
-});
 
 
 
@@ -62,7 +82,7 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
                 ->name('verification.send');
 
 
-Route::post('register',[UserAuthController::class,'register']);
+// Route::post('register',[UserAuthController::class,'register']);
 Route::post('login',[UserAuthController::class,'login']);
 Route::post('logout',[UserAuthController::class,'logout'])
   ->middleware('auth:sanctum');

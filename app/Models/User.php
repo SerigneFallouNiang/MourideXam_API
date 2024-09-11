@@ -20,11 +20,8 @@ class User extends Authenticatable implements HasMedia
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $guarded = [];
+    
 
     /**
      * The attributes that should be hidden for serialization.
@@ -47,5 +44,26 @@ class User extends Authenticatable implements HasMedia
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    //the relation of the table migration
+    // public function role()
+    // {
+    //     return $this->belongsTo(Role::class);
+    // }
+
+    // public function permissions()
+    // {
+    //     return $this->hasManyThrough(Permission::class, Role::class);
+    // }
+
+    public function progress()
+    {
+        return $this->hasMany(UserProgress::class);
+    }
+
+    public function quizResults()
+    {
+        return $this->hasMany(UserQuizResult::class);
     }
 }

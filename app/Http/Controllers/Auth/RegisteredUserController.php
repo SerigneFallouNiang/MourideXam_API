@@ -22,20 +22,28 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'telephone' => ['required', 'string', 'max:20'],
+            'progress' => ['nullable', 'string', 'max:20'],  // Progress peut être facultatif
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->string('password')),
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'telephone' => $request->input('telephone'),
+            'progress' => $request->input('progress'),
+            'password' => Hash::make($request->input('password')),
         ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
+        // Optionnel: connexion automatique de l'utilisateur après enregistrement
+        // Auth::login($user);
 
-        return response()->noContent();
+        return response()->json([
+            'message' => 'Utilisateur enregistré avec succès',
+            'user' => $user
+        ], 201);
     }
 }
