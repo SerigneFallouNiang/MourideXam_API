@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\Chapter;
 use Illuminate\Support\Facades\File;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
@@ -39,7 +40,8 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        //
+        $chapters = $book->chapters;
+        return response()->json(['message' => 'Liste des chapitres', 'chapitres' => $chapters], 200);
     }
 
     /**

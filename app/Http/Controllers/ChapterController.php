@@ -24,7 +24,8 @@ class ChapterController extends Controller
      */
     public function index()
     {
-        //
+        $chapter = Chapter::all();
+        return response()->json(['message' => 'Liste des chapitres', 'Chapitre' => $chapter], 201);
     }
 
     /**
@@ -78,7 +79,22 @@ class ChapterController extends Controller
      */
     public function update(UpdateChapterRequest $request, Chapter $chapter)
     {
-        //
+        $validatedData = $request->validated();
+    
+        // Gérer le fichier PDF
+        if ($request->hasFile('pdf')) {
+            // Supprimer l'ancien fichier s'il existe
+            if ($chapter->file_path) {
+                Storage::delete($chapter->file_path);
+            }
+            // Stocker le nouveau fichier PDF
+            $validatedData['file_path'] = $request->file('pdf')->store('public/pdf');
+        }
+    
+        // Mettre à jour le chapitre
+        $chapter->update($validatedData);
+    
+        return response()->json(['message' => 'Chapitre mis à jour avec succès', 'chapter' => $chapter], 200);
     }
 
     /**
@@ -86,7 +102,8 @@ class ChapterController extends Controller
      */
     public function destroy(Chapter $chapter)
     {
-        //
+        $chapter->delete();
+        return response()->json(['message' => 'Chapitre supprimé avec succès', 'Chapitre' => $chapter], 201);
     }
 
 

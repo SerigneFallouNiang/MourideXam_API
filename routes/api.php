@@ -40,7 +40,9 @@ Route::apiResource('books', BookController::class)->only('index', 'show');
 Route::post('books/{book}', [BookController::class, 'update']);
 
 
-Route::post('/chapters', [ChapterController::class, 'store']);
+// Route::post('/chapters', [ChapterController::class, 'store']);
+// Route::get('/chapters', [ChapterController::class, 'index']);
+Route::apiResource('chapters', ChapterController::class);
 //route pour l'upload d'une video à un chapitre
 Route::post('/chapters/{chapter}/upload-video', [ChapterController::class, 'uploadVideo']);
 //lire video 
