@@ -10,13 +10,13 @@ use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'store']]);
-        $this->middleware('permission:role-create', ['only' => ['store']]);
-        $this->middleware('permission:role-edit', ['only' => ['update']]);
-        $this->middleware('permission:role-delete', ['only' => ['destroy']]);
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'store']]);
+    //     $this->middleware('permission:role-create', ['only' => ['store']]);
+    //     $this->middleware('permission:role-edit', ['only' => ['update']]);
+    //     $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+    // }
 
     // Liste des rôles avec pagination
     public function index(Request $request)
@@ -33,25 +33,43 @@ class RoleController extends Controller
     }
 
     // Enregistrer un rôle
+    // public function store(Request $request)
+    // {
+    //     $request->validate([
+    //         'name' => 'required|unique:roles,name',
+    //         'permission' => 'required|array',
+    //     ]);
+
+    //     $permissionsID = array_map(function($value) {
+    //         return (int) $value;
+    //     }, $request->input('permission'));
+
+    //     $role = Role::create(['name' => $request->input('name')]);
+    //     $role->syncPermissions($permissionsID);
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Role created successfully',
+    //         'role' => $role
+    //     ], 201);
+    // }
+
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|unique:roles,name',
-            'permission' => 'required|array',
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255|unique:roles,name',
+            'permissions' => 'required|array',
+            'permissions.*' => 'exists:permissions,id',
         ]);
 
-        $permissionsID = array_map(function($value) {
-            return (int) $value;
-        }, $request->input('permission'));
-
-        $role = Role::create(['name' => $request->input('name')]);
-        $role->syncPermissions($permissionsID);
+        $role = Role::create($validatedData);
+        $role->permissions()->sync($request->input('permissions'));
 
         return response()->json([
             'success' => true,
-            'message' => 'Role created successfully',
+            'message' => 'Role add successfully',
             'role' => $role
-        ], 201);
+        ], 200);
     }
 
     // Détail d'un rôle
