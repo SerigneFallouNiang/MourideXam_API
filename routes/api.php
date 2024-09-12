@@ -17,12 +17,7 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
 
 Route::middleware('auth:sanctum')->group(function () {
-  Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
-  Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
-  Route::get('/roles/{id}', [RoleController::class, 'show'])->name('roles.show');
-  Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
-  Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
-
+  Route::apiResource('roles', RoleController::class);
   Route::get('/permissions', [RoleController::class, 'listPermission'])->name('permissions.list');
 });
 

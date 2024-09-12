@@ -33,26 +33,7 @@ class RoleController extends Controller
     }
 
     // Enregistrer un rôle
-    // public function store(Request $request)
-    // {
-    //     $request->validate([
-    //         'name' => 'required|unique:roles,name',
-    //         'permission' => 'required|array',
-    //     ]);
-
-    //     $permissionsID = array_map(function($value) {
-    //         return (int) $value;
-    //     }, $request->input('permission'));
-
-    //     $role = Role::create(['name' => $request->input('name')]);
-    //     $role->syncPermissions($permissionsID);
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Role created successfully',
-    //         'role' => $role
-    //     ], 201);
-    // }
+   
 
     public function store(Request $request)
     {
@@ -92,34 +73,54 @@ class RoleController extends Controller
     }
 
     // Mise à jour d'un rôle
+    // public function update(Request $request, $id)
+    // {
+    //     $validatedData = $request->validate([
+    //         'name' => 'required|string|max:255|unique:roles,name',
+    //         'permissions' => 'required|array',
+    //         'permissions.*' => 'exists:permissions,id',
+    //     ]);
+
+    //     $role ->update($validatedData);
+    //     $role->permissions()->sync($request->input('permissions'));
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'message' => 'Role add successfully',
+    //         'role' => $role
+    //     ], 200);
+    // }
+
     public function update(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'required',
-            'permission' => 'required|array',
-        ]);
+{
+    // Validation des données d'entrée
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255|unique:roles,name,' . $id, 
+        'permissions' => 'required|array',
+        'permissions.*' => 'exists:permissions,id',
+    ]);
 
-        $role = Role::find($id);
+    // Récupérer le rôle
+    $role = Role::find($id);
 
-        if (!$role) {
-            return response()->json(['error' => 'Role not found'], 404);
-        }
-
-        $role->name = $request->input('name');
-        $role->save();
-
-        $permissionsID = array_map(function($value) {
-            return (int) $value;
-        }, $request->input('permission'));
-
-        $role->syncPermissions($permissionsID);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Role updated successfully',
-            'role' => $role
-        ], 200);
+    // Vérifier si le rôle existe
+    if (!$role) {
+        return response()->json(['error' => 'Role not found'], 404);
     }
+
+    // Mettre à jour le rôle avec les données validées
+    $role->update(['name' => $validatedData['name']]);
+
+    // Synchroniser les permissions
+    $role->permissions()->sync($request->input('permissions'));
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Role updated successfully',
+        'role' => $role
+    ], 200);
+}
+
 
     // Suppression d'un rôle
     public function destroy($id)
@@ -127,11 +128,10 @@ class RoleController extends Controller
         $role = Role::find($id);
 
         if (!$role) {
-            return response()->json(['error' => 'Role not found'], 404);
+            return response()->json(['erreur' => 'Rôle non trouvé'], 404);
         }
-
+    
         $role->delete();
-
-        return response()->json(['message' => 'Role deleted successfully'], 200);
+        return response()->json(['message' => 'Rôle supprimé avec succès'], 200);
     }
 }
