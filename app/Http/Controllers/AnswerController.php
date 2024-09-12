@@ -13,23 +13,25 @@ class AnswerController extends Controller
      */
     public function index()
     {
-        //
+          // Récupérer toutes les réponses
+          $answers = Answer::all();
+          return response()->json($answers, 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+  
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreAnswerRequest $request)
     {
-        //
+         // Valider et créer une nouvelle réponse
+         $validatedData = $request->validated();
+         $answer = Answer::create($validatedData);
+         return response()->json([
+             'message' => 'Answer created successfully',
+             'data' => $answer
+         ], 201);
     }
 
     /**
@@ -37,23 +39,23 @@ class AnswerController extends Controller
      */
     public function show(Answer $answer)
     {
-        //
+         // Afficher une réponse spécifique
+         return response()->json($answer, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Answer $answer)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateAnswerRequest $request, Answer $answer)
     {
-        //
+           // Valider et mettre à jour une réponse
+           $validatedData = $request->validated();
+           $answer->update($validatedData);
+           return response()->json([
+               'message' => 'Answer updated successfully',
+               'data' => $answer
+           ], 200);
     }
 
     /**
@@ -61,6 +63,11 @@ class AnswerController extends Controller
      */
     public function destroy(Answer $answer)
     {
-        //
+        // Supprimer une réponse
+        $answer->delete();
+        return response()->json([
+            'message' => 'Answer deleted successfully'
+        ], 204);
+        
     }
 }

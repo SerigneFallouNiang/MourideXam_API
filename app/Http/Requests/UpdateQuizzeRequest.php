@@ -11,7 +11,7 @@ class UpdateQuizzeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,8 @@ class UpdateQuizzeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => 'sometimes|string|max:255',
+            "chapter_id" => ["sometimes", "exists:chapters,id"],
         ];
     }
 }

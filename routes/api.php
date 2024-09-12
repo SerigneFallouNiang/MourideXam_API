@@ -5,8 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
 
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\AnswerController;
+use App\Http\Controllers\QuizzeController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\UserAuthController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
@@ -14,6 +17,22 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+
+//answer
+Route::apiResource('answers', AnswerController::class);
+//Questions
+Route::apiResource('questions', QuestionController::class);
+
+// Quiz routes
+Route::get('chapters/{chapterId}/quizzes', [QuizzeController::class, 'index']);
+// Route::get('quizzes/{quizze}', [QuizzeController::class, 'show']);
+// Route::post('quizzes', [QuizzeController::class, 'store']);
+Route::put('quizzes/{quizze}', [QuizzeController::class, 'update']);
+// Route::delete('quizzes/{id}', [QuizzeController::class, 'destroy']);
+
+Route::apiResource('quizzes', QuizzeController::class);
+// Route::resource('quizzes',QuizzeController::class);
+
 
 
 Route::middleware('auth:sanctum')->group(function () {

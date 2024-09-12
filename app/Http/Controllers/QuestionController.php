@@ -13,23 +13,24 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        //
+        $questions = Question::all();
+        return response()->json($questions, 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreQuestionRequest $request)
     {
-        //
+        $validatedData = $request->validate([
+            'text' => 'required|string',
+            'points' => 'required|integer',
+            'quiz_id' => 'required|exists:quizzes,id'
+        ]);
+
+        $question = Question::create($validatedData);
+        return response()->json($question, 201);
     }
 
     /**
@@ -37,15 +38,8 @@ class QuestionController extends Controller
      */
     public function show(Question $question)
     {
-        //
-    }
+        return response()->json($question, 200);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Question $question)
-    {
-        //
     }
 
     /**
@@ -53,7 +47,13 @@ class QuestionController extends Controller
      */
     public function update(UpdateQuestionRequest $request, Question $question)
     {
-        //
+        $validatedData = $request->validate([
+            'text' => 'sometimes|string',
+            'points' => 'sometimes|integer'
+        ]);
+
+        $question->update($validatedData);
+        return response()->json($question, 200);
     }
 
     /**
@@ -61,6 +61,7 @@ class QuestionController extends Controller
      */
     public function destroy(Question $question)
     {
-        //
+        $question->delete();
+        return response()->json(null, 204);
     }
 }
