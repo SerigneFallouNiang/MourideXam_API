@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Answer;
 use App\Models\Quizze;
 use App\Models\User_quiz_result;
+use App\Notifications\QuizPassedNotification;
 use App\Http\Requests\StoreUser_quiz_resultRequest;
 use App\Http\Requests\UpdateUser_quiz_resultRequest;
 
@@ -57,18 +59,12 @@ class UserQuizResultController extends Controller
                 $score++;
             }
 
-            // Enregistrer la réponse de l'utilisateur
-            User_quiz_result::create([
-                'quiz_id' => $validatedData['quiz_id'],
-                'user_id' => $validatedData['user_id'],
-                'question_id' => $answer['question_id'],
-                'answer_id' => $answer['answer_id'],
-            ]);
+        
         }
 
         // Calculer le pourcentage
         $percentage = ($score / $totalQuestions) * 100;
-        $isPassed = $percentage >= 50; // Par exemple, réussite si plus de 50%
+        $isPassed = $percentage >= 70; // Par exemple, réussite si plus de 50%
 
         // Créer le résultat du quiz pour l'utilisateur
         $result = User_quiz_result::create([
@@ -80,6 +76,19 @@ class UserQuizResultController extends Controller
             'is_passed' => $isPassed,
         ]);
 
+          // Envoyer la notification de félicitations si l'utilisateur a réussi
+    if ($isPassed) {
+        $user = User::find($validatedData['user_id']);
+        
+        // Envoyer la notification à l'utilisateur
+        $user->notify(new QuizPassedNotification($user, $quiz, $score, $percentage));
+
+        // Envoyer une notification à l'admin
+        $admin = User::where('role', 'apprenant')->first(); // Modifier cette ligne en fonction de ta structure utilisateur
+        if ($admin) {
+            $admin->notify(new QuizPassedNotification($user, $quiz, $score, $percentage));
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Quiz result saved successfully',
@@ -90,6 +99,7 @@ class UserQuizResultController extends Controller
             'is_passed' => $isPassed
         ], 201);
     }
+}
 
     /**
      * Display the specified resource.
