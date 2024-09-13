@@ -11,7 +11,7 @@ class StoreUser_quiz_resultRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**

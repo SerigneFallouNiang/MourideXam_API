@@ -19,6 +19,9 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
+// Passer un quiz pour un apprenant 
+Route::post('quiz-results', [UserQuizResultController::class, 'store']);
+Route::get('quiz-results/{user_quiz_result}', [UserQuizResultController::class, 'show']);
 
 
 // Question routes
@@ -41,7 +44,7 @@ Route::apiResource('questions', QuestionController::class);
 // Quiz routes
 Route::get('chapters/{chapterId}/quizzes', [QuizzeController::class, 'index']);
 Route::get('quizzes/{quizze}', [QuizzeController::class, 'show']);
-// Route::post('quizzes', [QuizzeController::class, 'store']);
+Route::post('quizzes', [QuizzeController::class, 'store']);
 Route::put('quizzes/{quizze}', [QuizzeController::class, 'update']);
 Route::delete('quizzes/{quizze}', [QuizzeController::class, 'destroy']);
 
