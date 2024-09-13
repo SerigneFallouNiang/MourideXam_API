@@ -46,24 +46,19 @@ class User extends Authenticatable implements HasMedia
         ];
     }
 
-    //the relation of the table migration
-    // public function role()
-    // {
-    //     return $this->belongsTo(Role::class);
-    // }
 
-    // public function permissions()
-    // {
-    //     return $this->hasManyThrough(Permission::class, Role::class);
-    // }
-
+    // les relations des table du model 
     public function progress()
     {
         return $this->hasMany(UserProgress::class);
     }
 
+     // Relation avec les résultats de quiz
     public function quizResults()
     {
-        return $this->hasMany(UserQuizResult::class);
+        return $this->hasMany(User_quiz_result::class);
     }
+
+     
+ 
 }

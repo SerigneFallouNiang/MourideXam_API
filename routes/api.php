@@ -40,12 +40,12 @@ Route::apiResource('questions', QuestionController::class);
 
 // Quiz routes
 Route::get('chapters/{chapterId}/quizzes', [QuizzeController::class, 'index']);
-// Route::get('quizzes/{quizze}', [QuizzeController::class, 'show']);
+Route::get('quizzes/{quizze}', [QuizzeController::class, 'show']);
 // Route::post('quizzes', [QuizzeController::class, 'store']);
 Route::put('quizzes/{quizze}', [QuizzeController::class, 'update']);
-// Route::delete('quizzes/{id}', [QuizzeController::class, 'destroy']);
+Route::delete('quizzes/{quizze}', [QuizzeController::class, 'destroy']);
 
-Route::apiResource('quizzes', QuizzeController::class);
+// Route::apiResource('quizzes', QuizzeController::class);
 // Route::resource('quizzes',QuizzeController::class);
 
 

@@ -13,9 +13,7 @@ class UserQuizResultController extends Controller
      */
     public function index()
     {
-        // Lister tous les résultats d'un utilisateur
-        $results = UserQuizResult::where('user_id', $userId)->get();
-        return response()->json($results, 200);
+
     }
 
 
@@ -26,12 +24,6 @@ class UserQuizResultController extends Controller
     public function store(StoreUser_quiz_resultRequest $request)
     {
         
-        // Enregistrer le résultat d'un quiz
-        $result = UserQuizResult::create($request->validated());
-        return response()->json([
-            'message' => 'Quiz result saved successfully',
-            'data' => $result
-        ], 201);
     }
 
     /**
@@ -39,8 +31,7 @@ class UserQuizResultController extends Controller
      */
     public function show(User_quiz_result $user_quiz_result)
     {
-          // Afficher un résultat spécifique
-          return response()->json($userQuizResult, 200);
+
     }
 
 
@@ -49,12 +40,7 @@ class UserQuizResultController extends Controller
      */
     public function update(UpdateUser_quiz_resultRequest $request, User_quiz_result $user_quiz_result)
     {
-          // Mettre à jour le résultat d'un quiz
-          $userQuizResult->update($request->validated());
-          return response()->json([
-              'message' => 'Quiz result updated successfully',
-              'data' => $userQuizResult
-          ], 200);
+ 
     }
 
     /**
@@ -62,10 +48,6 @@ class UserQuizResultController extends Controller
      */
     public function destroy(User_quiz_result $user_quiz_result)
     {
-          // Supprimer un résultat de quiz
-          $userQuizResult->delete();
-          return response()->json([
-              'message' => 'Quiz result deleted successfully'
-          ], 204);
+  
     }
 }

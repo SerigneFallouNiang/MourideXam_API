@@ -79,30 +79,31 @@ class QuizzeController extends Controller
      */
 
     // Obtenir un quiz spécifique
-    public function show(Quizze $quiz)
+    public function show(Quizze $quizze)
     {
-
-           // Affiche un quiz spécifique avec ses questions
-           $quiz->load('questions');
-           return response()->json($quiz, 200);
+        // Affiche un quiz spécifique avec ses questions
+        $quizze->load('questions');
+        return response()->json($quizze, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Quizze $quizze)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateQuizzeRequest $request, Quizze $quizze)
     {
+        // Mettre à jour le quiz
         $quizze->update($request->validated());
 
-        return response()->json(['message' => 'Quiz modifiée avec succès', 'Quiz' => $quizze], 201);
+        // Mettre à jour les questions du quiz si fournies
+        if ($request->has('questions')) {
+            $quizze->questions()->sync($request->input('questions'));
+        }
+
+        return response()->json([
+            'message' => 'Quiz modifié avec succès',
+            'quiz' => $quizze->load('questions')
+        ], 200);
     }
 
     /**
@@ -110,8 +111,10 @@ class QuizzeController extends Controller
      */
     public function destroy(Quizze $quizze)
     {
-         // Supprimer un quiz
-         $quiz->delete();
-         return response()->json(null, 204);
+        // Supprimer le quiz et ses relations
+        $quizze->questions()->detach();  // Détacher les questions avant de supprimer
+        $quizze->delete();
+
+        return response()->json(['message' => 'Quiz supprimé avec succès'], 204);
     }
 }

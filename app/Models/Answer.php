@@ -15,4 +15,10 @@ class Answer extends Model
     {
         return $this->belongsTo(Question::class);
     }
+
+    // Relation avec les résultats de quiz
+    public function quizResults()
+    {
+        return $this->hasMany(User_quiz_result::class);
+    }
 }
