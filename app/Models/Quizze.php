@@ -18,9 +18,13 @@ class Quizze extends Model
         return $this->belongsTo(Chapter::class);
     }
 
+    // public function questions()
+    // {
+    //     return $this->hasMany(Question::class);
+    // }
     public function questions()
     {
-        return $this->hasMany(Question::class);
+        return $this->belongsToMany(Question::class,'quizze_question');
     }
 
     public function userResults()

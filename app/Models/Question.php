@@ -11,9 +11,13 @@ class Question extends Model
 
     protected $guarded = [];
 
-    public function quiz()
+    // public function quiz()
+    // {
+    //     return $this->belongsTo(Quizze::class);
+    // }
+    public function quizzes()
     {
-        return $this->belongsTo(Quizze::class);
+        return $this->belongsToMany(Quizze::class, 'quizze_question');
     }
 
     public function answers()

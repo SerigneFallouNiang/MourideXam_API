@@ -26,7 +26,6 @@ class QuestionController extends Controller
         $validatedData = $request->validate([
             'text' => 'required|string',
             'points' => 'required|integer',
-            'quiz_id' => 'required|exists:quizzes,id'
         ]);
 
         $question = Question::create($validatedData);

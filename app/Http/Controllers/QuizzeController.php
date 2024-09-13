@@ -28,12 +28,50 @@ class QuizzeController extends Controller
 
     public function store(StoreQuizzeRequest $request)
     {
-        $quiz = Quizze::create([
-            'title' => $request->title,
-            'chapter_id' => $request->chapter_id
+        // $quiz = Quizze::create([
+        //     'title' => $request->title,
+        //     'chapter_id' => $request->chapter_id
+        // ]);
+
+        // return response()->json($quiz, 201);
+
+        // $validatedData = $request->validate([
+        //     'title' => 'required|string|max:255|unique:roles,name',
+        //     'chapter_id' => 'required|array',
+        //     'questions.*' => 'exists:questions,id',
+        // ]);
+
+        // $quiz = Quizze::create($validatedData);
+        // $quiz->permissions()->sync($request->input('questions'));
+
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Question add successfully',
+        //     'question' => $quiz
+        // ], 200);
+
+        // Validation des données du quiz
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255|unique:quizzes,title',
+            'chapter_id' => 'required|exists:chapters,id',
+            'questions' => 'required|array',
+            'questions.*' => 'exists:questions,id',
         ]);
 
-        return response()->json($quiz, 201);
+        // Créer le quiz
+        $quiz = Quizze::create([
+            'title' => $validatedData['title'],
+            'chapter_id' => $validatedData['chapter_id'],
+        ]);
+
+        // Assigner les questions au quiz
+        $quiz->questions()->sync($validatedData['questions']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Quiz créé avec succès et questions assignées',
+            'quiz' => $quiz->load('questions')  // Charger les questions associées
+        ], 201);
     }
 
     /**

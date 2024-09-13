@@ -11,12 +11,27 @@ use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\UserAuthController;
+use App\Http\Controllers\UserQuizResultController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+
+
+
+// Question routes
+Route::get('quizzes/{quizId}/questions', [QuestionController::class, 'index']);
+Route::get('questions/{question}', [QuestionController::class, 'show']);
+Route::post('questions', [QuestionController::class, 'store']);
+Route::put('questions/{question}', [QuestionController::class, 'update']);
+Route::delete('questions/{question}', [QuestionController::class, 'destroy']);
+
+
+// result of the quiz user 
+Route::apiResource('user-quiz-results', UserQuizResultController::class);
+
 
 //answer
 Route::apiResource('answers', AnswerController::class);
