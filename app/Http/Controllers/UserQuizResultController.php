@@ -28,14 +28,23 @@ class UserQuizResultController extends Controller
     public function store(StoreUser_quiz_resultRequest $request)
     {
         
+
+         // Récupérer l'utilisateur connecté
+         $user = auth()->user();
+
         // Valider la requête
         $validatedData = $request->validate([
-            'user_id' => 'required|exists:users,id',
+            // 'user_id' => 'required|exists:users,id',
             'quiz_id' => 'required|exists:quizzes,id',
             'answers' => 'required|array',
             'answers.*.question_id' => 'required|exists:questions,id',
             'answers.*.answer_id' => 'required|exists:answers,id',
         ]);
+
+        // Vérifier si l'utilisateur a déjà passé ce quiz
+        $existingResult = User_quiz_result::where('user_id', $user->id)
+        ->where('quiz_id', $validatedData['quiz_id'])
+        ->first();
 
         // Trouver le quiz
         $quiz = Quizze::find($validatedData['quiz_id']);
@@ -67,24 +76,35 @@ class UserQuizResultController extends Controller
         $isPassed = $percentage >= 70; // Par exemple, réussite si plus de 50%
 
         // Créer le résultat du quiz pour l'utilisateur
-        $result = User_quiz_result::create([
-            'user_id' => $validatedData['user_id'],
-            'quiz_id' => $validatedData['quiz_id'],
-            'question_id' => $answer['question_id'],
-            'answer_id' => $answer['answer_id'],
-            'score' => $percentage,
-            'is_passed' => $isPassed,
-        ]);
+        $result = User_quiz_result::updateOrCreate(
+            // 'user_id' => $validatedData['user_id'],
+            // 'user_id' => $user->id,
+            // 'quiz_id' => $validatedData['quiz_id'],
+            // 'question_id' => $answer['question_id'],
+            // 'answer_id' => $answer['answer_id'],
+            // 'score' => $percentage,
+            // 'is_passed' => $isPassed,
+            [
+                'user_id' => $user->id,
+                'quiz_id' => $validatedData['quiz_id'],
+            ],
+            [
+                'question_id' => $answer['question_id'],
+                'answer_id' => $answer['answer_id'],
+                'score' => $percentage,
+                'is_passed' => $isPassed,
+            ]
+        );
 
           // Envoyer la notification de félicitations si l'utilisateur a réussi
     if ($isPassed) {
-        $user = User::find($validatedData['user_id']);
+        // $user = User::find($validatedData['user_id']);
         
         // Envoyer la notification à l'utilisateur
         $user->notify(new QuizPassedNotification($user, $quiz, $score, $percentage));
 
         // Envoyer une notification à l'admin
-        $admin = User::where('role', 'apprenant')->first(); // Modifier cette ligne en fonction de ta structure utilisateur
+        $admin = User::where('roles', 'apprenant')->first(); // Modifier cette ligne en fonction de ta structure utilisateur
         if ($admin) {
             $admin->notify(new QuizPassedNotification($user, $quiz, $score, $percentage));
         }

@@ -20,9 +20,13 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
 // Passer un quiz pour un apprenant 
+Route::middleware('auth:sanctum')->group(function () {
 Route::post('quiz-results', [UserQuizResultController::class, 'store']);
 Route::get('quiz-results/{user_quiz_result}', [UserQuizResultController::class, 'show']);
 
+//gestion profil d'un utilisateur
+Route::put('/user/profile', [RegisteredUserController::class, 'update']);
+});
 
 // Question routes
 Route::get('quizzes/{quizId}/questions', [QuestionController::class, 'index']);
