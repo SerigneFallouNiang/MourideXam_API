@@ -82,4 +82,30 @@ class BookController extends Controller
         $book->delete();
         return response()->json(['message' => 'Livre supprimé avec succès', 'Livre' => $book], 201);
     }
+
+
+
+//pour récupérer l'ensemble des chapitre d'un livre
+    public function getChaptersByBook($id)
+{
+    $book = Book::with('chapters')->find($id);
+
+    if (!$book) {
+        return response()->json(['message' => 'Livre non trouvé'], 404);
+    }
+
+    return response()->json([
+        'message' => 'Chapitres récupérés avec succès',
+        'Livre' => $book->title,
+        'Chapitres' => $book->chapters->map(function ($chapter) {
+            return [
+                'Titre du chapitre' => $chapter->title,
+                'Lien' => $chapter->lien,
+                'Description' => $chapter->description,
+                'Fichier' => $chapter->file_path,
+            ];
+        })
+    ], 200);
+}
+
 }

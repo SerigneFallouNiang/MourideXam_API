@@ -25,9 +25,4 @@ class Question extends Model
         return $this->hasMany(Answer::class);
     }
 
-     // Relation avec les résultats de quiz
-     public function quizResults()
-     {
-         return $this->hasMany(User_quiz_result::class);
-     }
 }

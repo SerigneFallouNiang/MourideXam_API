@@ -60,6 +60,10 @@ Route::delete('quizzes/{quizze}', [QuizzeController::class, 'destroy']);
 Route::middleware('auth:sanctum')->group(function () {
   Route::apiResource('roles', RoleController::class);
   Route::get('/permissions', [RoleController::class, 'listPermission'])->name('permissions.list');
+
+  //route pour passer un quiz
+  Route::get('/quiz/start/{chapterId}', [QuizzeController::class, 'startQuiz']);
+Route::post('/quiz/submit/{quizId}', [QuizzeController::class, 'submitQuiz']);
 });
 
 // Route::group(['middleware' => ['auth:sanctum']], function() {
@@ -74,6 +78,8 @@ Route::delete('categories_mass_destroy', [CategoryController::class, 'massDestro
 Route::apiResource('books', BookController::class)->only('store', 'destroy');
 Route::apiResource('books', BookController::class)->only('index', 'show');
 Route::post('books/{book}', [BookController::class, 'update']);
+Route::get('/books/{id}/chapters', [BookController::class, 'getChaptersByBook']);
+
 
 
 // Route::post('/chapters', [ChapterController::class, 'store']);

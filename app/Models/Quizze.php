@@ -27,8 +27,4 @@ class Quizze extends Model
         return $this->belongsToMany(Question::class,'quizze_question');
     }
 
-    public function userResults()
-    {
-        return $this->hasMany(User_quiz_result::class);
-    }
 }

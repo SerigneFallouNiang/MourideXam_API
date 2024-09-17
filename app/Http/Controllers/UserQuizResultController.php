@@ -77,13 +77,6 @@ class UserQuizResultController extends Controller
 
         // Créer le résultat du quiz pour l'utilisateur
         $result = User_quiz_result::updateOrCreate(
-            // 'user_id' => $validatedData['user_id'],
-            // 'user_id' => $user->id,
-            // 'quiz_id' => $validatedData['quiz_id'],
-            // 'question_id' => $answer['question_id'],
-            // 'answer_id' => $answer['answer_id'],
-            // 'score' => $percentage,
-            // 'is_passed' => $isPassed,
             [
                 'user_id' => $user->id,
                 'quiz_id' => $validatedData['quiz_id'],
