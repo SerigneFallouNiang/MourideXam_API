@@ -22,7 +22,8 @@ class UpdateCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['"sometimes"']
+            'name' => ['sometimes'],
+            'description' => ['sometimes'] 
         ];
     }
 }

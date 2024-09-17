@@ -72,34 +72,23 @@ class RoleController extends Controller
         ], 200);
     }
 
-    // Mise à jour d'un rôle
-    // public function update(Request $request, $id)
-    // {
-    //     $validatedData = $request->validate([
-    //         'name' => 'required|string|max:255|unique:roles,name',
-    //         'permissions' => 'required|array',
-    //         'permissions.*' => 'exists:permissions,id',
-    //     ]);
 
-    //     $role ->update($validatedData);
-    //     $role->permissions()->sync($request->input('permissions'));
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'message' => 'Role add successfully',
-    //         'role' => $role
-    //     ], 200);
-    // }
 
     public function update(Request $request, $id)
 {
-    // Validation des données d'entrée
-    $validatedData = $request->validate([
-        'name' => 'required|string|max:255|unique:roles,name,' . $id, 
-        'permissions' => 'required|array',
-        'permissions.*' => 'exists:permissions,id',
-    ]);
+   
 
+    try {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255|unique:roles,name,' . $id, 
+            'permissions' => 'required|array',
+            'permissions.*' => 'exists:permissions,id',
+        ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json($e->errors(), 422);  // Voir les erreurs de validation
+    }
+    
+    // dd($request->all()); 
     // Récupérer le rôle
     $role = Role::find($id);
 
@@ -125,6 +114,7 @@ class RoleController extends Controller
     // Suppression d'un rôle
     public function destroy($id)
     {
+        //  dd($id->all()); 
         $role = Role::find($id);
 
         if (!$role) {

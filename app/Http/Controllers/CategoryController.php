@@ -52,6 +52,8 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
+
+        // dd($request->all()); 
         $category->update($request->validated());
 
         return response()->json(['message' => 'Catégorie modifiée avec succès', 'Catégorie' => $category], 201);

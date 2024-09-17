@@ -37,35 +37,19 @@ class QuizzeController extends Controller
 
     public function store(StoreQuizzeRequest $request)
     {
-        // $quiz = Quizze::create([
-        //     'title' => $request->title,
-        //     'chapter_id' => $request->chapter_id
-        // ]);
-
-        // return response()->json($quiz, 201);
-
-        // $validatedData = $request->validate([
-        //     'title' => 'required|string|max:255|unique:roles,name',
-        //     'chapter_id' => 'required|array',
-        //     'questions.*' => 'exists:questions,id',
-        // ]);
-
-        // $quiz = Quizze::create($validatedData);
-        // $quiz->permissions()->sync($request->input('questions'));
-
-        // return response()->json([
-        //     'success' => true,
-        //     'message' => 'Question add successfully',
-        //     'question' => $quiz
-        // ], 200);
-
-        // Validation des données du quiz
+        try {
+              // Validation des données du quiz
         $validatedData = $request->validate([
             'title' => 'required|string|max:255|unique:quizzes,title',
             'chapter_id' => 'required|exists:chapters,id',
             'questions' => 'required|array',
             'questions.*' => 'exists:questions,id',
         ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json($e->errors(), 422);  // Voir les erreurs de validation
+        }
+
+      
 
         // Créer le quiz
         $quiz = Quizze::create([
@@ -162,64 +146,6 @@ class QuizzeController extends Controller
             'questions' => $questionsWithAnswers
         ]);
     }
-
-
-//     public function submitQuiz(Request $request, $quizId)
-// {
-//     $quiz = Quizze::findOrFail($quizId);
-//     $user = Auth::user();
-
-//     $validatedData = $request->validate([
-//         'answers' => 'required|array',
-//         'answers.*.question_id' => 'required|exists:questions,id',
-//         'answers.*.answer_id' => 'required|exists:answers,id',
-//     ]);
-
-//     $correctAnswers = 0;
-//     $totalQuestions = count($validatedData['answers']);
-
-//     foreach ($validatedData['answers'] as $answer) {
-//         $question = Question::findOrFail($answer['question_id']);
-//         $correctAnswer = $question->answers()->where('correct_one', true)->first();
-
-//         if ($correctAnswer && $correctAnswer->id == $answer['answer_id']) {
-//             $correctAnswers++;
-//         }
-//     }
-
-//     $score = ($correctAnswers / $totalQuestions) * 100;
-//     $isPassed = $score >= 70; // Considérons que 70% est la note de passage
-
-//     // Mise à jour du quiz avec le score et le statut
-//     $quiz->update([
-//         'score' => $score,
-//         'is_passed' => $isPassed,
-//     ]);
-
-//     // Mise à jour du progrès de l'utilisateur
-//     User_progres::updateOrCreate(
-//         ['user_id' => $user->id, 'chapter_id' => $quiz->chapter_id],
-//         ['is_completed' => $isPassed]
-//     );
-
-//     // Envoyer des notifications si nécessaire
-//     if ($isPassed) {
-//         $user->notify(new QuizPassedNotification($user, $quiz, $correctAnswers, $score));
-        
-//         $admin = User::role('admin')->first();
-//         if ($admin) {
-//             $admin->notify(new QuizPassedNotification($user, $quiz, $correctAnswers, $score));
-//         }
-//     }
-
-//     return response()->json([
-//         'message' => 'Quiz terminé',
-//         'score' => $score,
-//         'correctAnswers' => $correctAnswers,
-//         'totalQuestions' => $totalQuestions,
-//         'isPassed' => $isPassed
-//     ]);
-// }
 
    
 
