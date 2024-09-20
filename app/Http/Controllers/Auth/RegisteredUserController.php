@@ -19,12 +19,11 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): Response
+    public function store(Request $request): Response|JsonResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'telephone' => ['required', 'string', 'max:20'],
-            'progress' => ['nullable', 'string', 'max:20'],  // Progress peut être facultatif
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -33,7 +32,6 @@ class RegisteredUserController extends Controller
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'telephone' => $request->input('telephone'),
-            'progress' => $request->input('progress'),
             'password' => Hash::make($request->input('password')),
         ]);
 
@@ -62,7 +60,6 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
             'telephone' => ['sometimes', 'string', 'max:20'],
-            'progress' => ['nullable', 'string', 'max:20'], // Facultatif
             'email' => ['sometimes', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'password' => ['sometimes', 'confirmed', 'min:8'], // La confirmation de mot de passe est nécessaire si modifié
         ]);
