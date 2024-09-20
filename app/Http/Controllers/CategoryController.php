@@ -33,8 +33,16 @@ class CategoryController extends Controller
      */
     public function store(StoreCategoryRequest $request)
     {
-        $categories = Category::create($request->validated());
 
+        $categories = new Category();
+        $categories->fill($request->validated());
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $categories->image = $image->store('livres', 'public');
+        }
+
+        // $categories = Category::create($request->validated());
+        $categories->save();
         return response()->json(['message' => 'Catégorie créé avec succès', 'Catégorie' => $categories], 201);
     }
 
@@ -53,10 +61,22 @@ class CategoryController extends Controller
     public function update(UpdateCategoryRequest $request, Category $category)
     {
 
-        // dd($request->all()); 
-        $category->update($request->validated());
+        // return response()->json(['message' => 'Catégorie modifiée avec succès', 'Catégorie' => $category], 201);
+        $category->fill($request->validated());
+        if ($request->hasFile('image')) {
 
-        return response()->json(['message' => 'Catégorie modifiée avec succès', 'Catégorie' => $category], 201);
+            if (File::exists(public_path("storage/" . $category->image))) {
+                File::delete(public_path($category->image));
+            }
+            $image = $request->file('image');
+            $category->image = $image->store('livres', 'public');
+        }
+        // dd($livre->image);
+        if ($category->quantite > 0) {
+            $category->update(['disponible' => true]);
+        }
+        $category->update();
+        return response()->json(['message' => 'Livre modifié avec succès', 'Livre' => $category], 201);
     }
 
     /**
