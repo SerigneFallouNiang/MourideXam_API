@@ -2,12 +2,58 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User_progres;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreUser_progresRequest;
 use App\Http\Requests\UpdateUser_progresRequest;
-use App\Models\User_progres;
 
 class UserProgresController extends Controller
 {
+
+
+    public function getUserProgress(Request $request)
+    {
+        $user = Auth::user(); // Obtenir l'utilisateur authentifié
+        
+        // Récupérer tous les progrès de l'utilisateur
+        $userProgress = User_progres::where('user_id', $user->id)
+            ->where('is_completed', true)
+            ->with('chapter.book')
+            ->get();
+
+        // Structurer les données
+        $progressData = [];
+        foreach ($userProgress as $progress) {
+            $bookId = $progress->chapter->book->id;
+            $chapterId = $progress->chapter_id;
+
+            if (!isset($progressData[$bookId])) {
+                $progressData[$bookId] = [
+                    'book_id' => $bookId,
+                    'book_title' => $progress->chapter->book->title,
+                    'chapters' => []
+                ];
+            }
+
+            $progressData[$bookId]['chapters'][] = [
+                'chapter_id' => $chapterId,
+                'chapter_title' => $progress->chapter->title,
+                'completed_at' => $progress->updated_at
+            ];
+        }
+
+        return response()->json([
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'progress' => array_values($progressData)
+        ]);
+    }
+
+
+
+
     /**
      * Display a listing of the resource.
      */

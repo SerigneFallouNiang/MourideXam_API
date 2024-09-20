@@ -11,6 +11,7 @@ use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\UserAuthController;
+use App\Http\Controllers\UserProgresController;
 use App\Http\Controllers\UserQuizResultController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
@@ -18,6 +19,10 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+
+
+// progression d'un user 
+Route::middleware('auth:sanctum')->get('/user-progress', [UserProgresController::class, 'getUserProgress']);
 
 // Passer un quiz pour un apprenant 
 Route::middleware('auth:sanctum')->group(function () {
