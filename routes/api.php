@@ -22,10 +22,10 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
 
 // progression d'un user 
-Route::middleware('auth:sanctum')->get('/user-progress', [UserProgresController::class, 'getUserProgress']);
+Route::middleware('auth:api')->get('/user-progress', [UserProgresController::class, 'getUserProgress']);
 
 // Passer un quiz pour un apprenant 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:api')->group(function () {
 
 
 //gestion profil d'un utilisateur
@@ -61,7 +61,7 @@ Route::delete('quizzes/{quizze}', [QuizzeController::class, 'destroy']);
 
 
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:api')->group(function () {
   Route::apiResource('roles', RoleController::class);
   Route::get('/permissions', [RoleController::class, 'listPermission'])->name('permissions.list');
 
@@ -70,7 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/quiz/submit/{quizId}', [QuizzeController::class, 'submitQuiz']);
 });
 
-// Route::group(['middleware' => ['auth:sanctum']], function() {
+// Route::group(['middleware' => ['auth:api']], function() {
 // categories
 Route::resource('categories',CategoryController::class);
 Route::delete('categories_mass_destroy', [CategoryController::class, 'massDestroy'])->name('categories.mass_destroy');
@@ -132,13 +132,13 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
 
 // Route::post('register',[UserAuthController::class,'register']);
 Route::post('login',[UserAuthController::class,'login']);
-Route::post('logout',[UserAuthController::class,'logout'])
-  ->middleware('auth:sanctum');
+Route::get('logout',[UserAuthController::class,'logout'])
+  ->middleware('auth:api');
 
 // Route::post('/login', [AuthenticatedSessionController::class, 'store'])
 //     ->middleware('guest')
 //     ->name('login');
 
 // Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
-//     ->middleware('auth:sanctum')
+//     ->middleware('auth:api')
 //     ->name('logout');
