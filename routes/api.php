@@ -20,6 +20,8 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
+// listes des livres par categorie 
+Route::get('categories/{categoryId}/books', [CategoryController::class, 'getBooks']);
 
 // progression d'un user 
 Route::middleware('auth:api')->get('/user-progress', [UserProgresController::class, 'getUserProgress']);
