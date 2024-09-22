@@ -133,10 +133,10 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
                 ->name('verification.send');
 
 
-// Route::post('register',[UserAuthController::class,'register']);
-// Route::post('login',[UserAuthController::class,'login']);
-// Route::get('logout',[UserAuthController::class,'logout'])
-//   ->middleware('auth:api');
+Route::post('register',[UserAuthController::class,'register']);
+Route::post('login',[UserAuthController::class,'login']);
+Route::get('logout',[UserAuthController::class,'logout'])
+  ->middleware('auth:api');
 
 // Route::post('/login', [AuthenticatedSessionController::class, 'store'])
 //     ->middleware('guest')
