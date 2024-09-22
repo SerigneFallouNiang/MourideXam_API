@@ -24,6 +24,8 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 Route::get('categories/{categoryId}/books', [CategoryController::class, 'getBooks']);
 
 // progression d'un user 
+
+
 Route::middleware('auth:api')->get('/user-progress', [UserProgresController::class, 'getUserProgress']);
 
 // Passer un quiz pour un apprenant 
@@ -135,10 +137,10 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
                 ->name('verification.send');
 
 
-// Route::post('register',[UserAuthController::class,'register']);
-// Route::post('login',[UserAuthController::class,'login']);
-// Route::get('logout',[UserAuthController::class,'logout'])
-//   ->middleware('auth:api');
+Route::post('register',[UserAuthController::class,'register']);
+Route::post('login',[UserAuthController::class,'login']);
+Route::get('logout',[UserAuthController::class,'logout'])
+  ->middleware('auth:api');
 
 // Route::post('/login', [AuthenticatedSessionController::class, 'store'])
 //     ->middleware('guest')
