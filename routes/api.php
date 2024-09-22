@@ -28,6 +28,9 @@ Route::middleware('auth:api')->get('/user-progress', [UserProgresController::cla
 Route::middleware('auth:api')->group(function () {
 
 
+  Route::get("profile", [ApiController::class, "profile"]);
+  Route::get("refresh", [ApiController::class, "refreshToken"]);
+  Route::get("logout", [ApiController::class, "logout"]);
 //gestion profil d'un utilisateur
 Route::put('/user/profile', [RegisteredUserController::class, 'update']);
 });
@@ -131,9 +134,9 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
 
 
 // Route::post('register',[UserAuthController::class,'register']);
-Route::post('login',[UserAuthController::class,'login']);
-Route::get('logout',[UserAuthController::class,'logout'])
-  ->middleware('auth:api');
+// Route::post('login',[UserAuthController::class,'login']);
+// Route::get('logout',[UserAuthController::class,'logout'])
+//   ->middleware('auth:api');
 
 // Route::post('/login', [AuthenticatedSessionController::class, 'store'])
 //     ->middleware('guest')
