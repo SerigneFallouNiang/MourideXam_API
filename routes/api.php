@@ -22,6 +22,8 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
 
 // progression d'un user 
+
+
 Route::middleware('auth:api')->get('/user-progress', [UserProgresController::class, 'getUserProgress']);
 
 // Passer un quiz pour un apprenant 
