@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Spatie\Permission\Models\Role;
 
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -31,36 +31,76 @@ class UserAuthController extends Controller
 
 
     // Login API - POST (email, password)
-    public function login(Request $request){
+    // public function login(Request $request){
 
-        // Validation
-        $request->validate([
-            "email" => "required|email",
-            "password" => "required"
-        ]);
+    //     // Validation
+    //     $request->validate([
+    //         "email" => "required|email",
+    //         "password" => "required"
+    //     ]);
 
-        $token = auth()->attempt([
-            "email" => $request->email,
-            "password" => $request->password
-        ]);
+    //     $token = auth()->attempt([
+    //         "email" => $request->email,
+    //         "password" => $request->password
+    //     ]);
 
-        if(!$token){
+    //     if(!$token){
 
-            return response()->json([
-                "status" => false,
-                "message" => "Invalid login details"
-            ]);
-        }
+    //         return response()->json([
+    //             "status" => false,
+    //             "message" => "Invalid login details"
+    //         ]);
+    //     }
 
+    //     return response()->json([
+    //         "status" => true,
+    //         "message" => "User logged in succcessfully",
+    //         "token" => $token,
+    //         "token_type" => "bearer",
+    //         "expires_in" => auth()->factory()->getTTL() * 60
+    //     ]);
+
+    // }
+
+  
+
+public function login(Request $request)
+{
+    // Validation des informations de connexion
+    $request->validate([
+        "email" => "required|email",
+        "password" => "required"
+    ]);
+
+    // Authentification
+    $token = auth()->attempt([
+        "email" => $request->email,
+        "password" => $request->password
+    ]);
+
+    if (!$token) {
         return response()->json([
-            "status" => true,
-            "message" => "User logged in succcessfully",
-            "token" => $token,
-            "token_type" => "bearer",
-            "expires_in" => auth()->factory()->getTTL() * 60
+            "status" => false,
+            "message" => "Invalid login details"
         ]);
-
     }
+
+    // Récupérer l'utilisateur authentifié
+    $user = auth()->user();
+
+    // Récupérer les rôles de l'utilisateur
+    $roles = $user->getRoleNames(); 
+
+    return response()->json([
+        "status" => true,
+        "message" => "User logged in successfully",
+        "token" => $token,
+        "token_type" => "bearer",
+        "expires_in" => auth()->factory()->getTTL() * 60,
+        "roles" => $roles, 
+    ]);
+}
+
 
     public function logout(){
         auth()->user()->tokens()->delete();
