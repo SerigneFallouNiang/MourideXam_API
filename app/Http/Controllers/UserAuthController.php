@@ -47,7 +47,8 @@ public function login(Request $request)
         "token" => $token,
         "token_type" => "bearer",
         "expires_in" => auth()->factory()->getTTL() * 60,
-        "roles" => $roles, 
+        "roles" => $roles,
+        "user" => $user,
     ]);
 }
 
@@ -78,7 +79,7 @@ public function refreshToken(){
         "status" => true,
         "message" => "New access token",
         "token" => $token,
-        "expires_in" => auth()->factory()->getTTL() * 60
+        // "expires_in" => auth()->factory()->getTTL() * 60
     ]);
 }
 
