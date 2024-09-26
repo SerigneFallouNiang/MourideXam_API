@@ -53,12 +53,16 @@ class ChapterController extends Controller
         // Stocker le fichier PDF dans storage/app/public/pdf
         $filePath = $request->file('pdf')->store('public/pdf');
 
+         // Extraire seulement le nom du fichier avec le chemin relatif
+        $relativeFilePath = 'pdf/' . basename($filePath);
+
+
         // Créer l'enregistrement dans la base de données
         $chapter = Chapter::create([
             'title' => $request->title,
             'description' => $request->description,
             'lien' => $request->lien,
-            'file_path' => $filePath,
+            'file_path' => $relativeFilePath,
             'book_id' =>$request->book_id,
         ]);
 

@@ -22,8 +22,6 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
 
 // progression d'un user 
-
-
 Route::middleware('auth:api')->get('/user-progress', [UserProgresController::class, 'getUserProgress']);
 
 // Passer un quiz pour un apprenant 
@@ -77,6 +75,8 @@ Route::post('/quiz/submit/{quizId}', [QuizzeController::class, 'submitQuiz']);
 
 // Route::group(['middleware' => ['auth:api']], function() {
 // categories
+// listes des livres par categorie 
+Route::get('categories/{categoryId}/books', [CategoryController::class, 'getBooks']);
 Route::resource('categories',CategoryController::class);
 Route::delete('categories_mass_destroy', [CategoryController::class, 'massDestroy'])->name('categories.mass_destroy');
 

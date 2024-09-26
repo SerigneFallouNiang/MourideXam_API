@@ -28,6 +28,18 @@ class CategoryController extends Controller
     }
 
 
+    public function getBooks($categoryId)
+    {
+        $category = Category::findOrFail($categoryId);
+        $books = $category->books;
+
+        return response()->json([
+            'message' => 'Livres de la catégorie ' . $category->name,
+            'category' => $category->name,
+            'books' => $books
+        ], 200);
+    }
+    
     /**
      * Store a newly created resource in storage.
      */
