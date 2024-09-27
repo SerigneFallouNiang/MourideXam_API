@@ -41,29 +41,39 @@ class ChapterController extends Controller
      */
     public function store(StoreChapterRequest $request)
     {
+        // dd($request);
+        try {
          // Valider la requête
-         $request->validate([
+        $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'lien' => 'nullable|string',
-            "book_id" => ["required", "exists:books,id"],
-            'pdf' => 'required|mimes:pdf|max:10000', // Taille maximale de 10 Mo
+            'video' => 'required|mimes:mp4,avi,mov|max:30000',
+            // 'lien' => 'nullable|string',
+            'book_id' => 'required|exists:books,id',
+            'pdf' => 'required|mimes:pdf|max:20000', 
         ]);
-
-        // Stocker le fichier PDF dans storage/app/public/pdf
-        $filePath = $request->file('pdf')->store('public/pdf');
-
-         // Extraire seulement le nom du fichier avec le chemin relatif
-        $relativeFilePath = 'pdf/' . basename($filePath);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return response()->json($e->errors(), 422);  // Voir les erreurs de validation
+            }
 
 
-        // Créer l'enregistrement dans la base de données
+        // Stocker le fichier PDF
+        $pdfPath = $request->file('pdf')->store('public/pdf');
+        $relativePdfPath = 'pdf/' . basename($pdfPath);
+
+        // Stocker la vidéo
+        $videoPath = $request->file('video')->store('public/videos');
+        $relativeVideoPath = 'videos/' . basename($videoPath);
+
+
+      // Créer l'enregistrement dans la base de données
         $chapter = Chapter::create([
             'title' => $request->title,
             'description' => $request->description,
-            'lien' => $request->lien,
-            'file_path' => $relativeFilePath,
-            'book_id' =>$request->book_id,
+            // 'lien' => $request->lien,
+            'file_path' => $relativePdfPath, // Stocke le chemin du PDF
+            'video_path' => $relativeVideoPath, // Stocke le chemin de la vidéo
+            'book_id' => $request->book_id,
         ]);
 
         return response()->json(['message' => 'Chapitre créé avec succès', 'chapter' => $chapter], 201);
@@ -82,33 +92,61 @@ class ChapterController extends Controller
      * Update the specified resource in storage.
      */
     public function update(UpdateChapterRequest $request, Chapter $chapter)
-    {
-        $validatedData = $request->validated();
-    
-        // Gérer le fichier PDF
-        if ($request->hasFile('pdf')) {
-            // Supprimer l'ancien fichier s'il existe
-            if ($chapter->file_path) {
-                Storage::delete($chapter->file_path);
-            }
-            // Stocker le nouveau fichier PDF
-            $validatedData['file_path'] = $request->file('pdf')->store('public/pdf');
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        'video' => 'nullable|mimes:mp4,avi,mov|max:30000',
+        'pdf' => 'nullable|mimes:pdf|max:20000',
+    ]);
+
+    $validatedData = $request->all();
+
+    // Gérer le fichier PDF
+    if ($request->hasFile('pdf')) {
+        // Supprimer l'ancien fichier s'il existe
+        if ($chapter->file_path) {
+            Storage::delete($chapter->file_path);
         }
-    
-        // Mettre à jour le chapitre
-        $chapter->update($validatedData);
-    
-        return response()->json(['message' => 'Chapitre mis à jour avec succès', 'chapter' => $chapter], 200);
+        // Stocker le nouveau fichier PDF
+        $pdfPath = $request->file('pdf')->store('public/pdf');
+        $validatedData['file_path'] = 'pdf/' . basename($pdfPath);
     }
+
+    // Gérer le fichier vidéo
+    if ($request->hasFile('video')) {
+        // Supprimer l'ancienne vidéo s'il y en a une
+        if ($chapter->video_path) {
+            Storage::delete($chapter->video_path);
+        }
+        // Stocker la nouvelle vidéo
+        $videoPath = $request->file('video')->store('public/videos');
+        $validatedData['video_path'] = 'videos/' . basename($videoPath);
+    }
+
+    // Mettre à jour le chapitre
+    $chapter->update($validatedData);
+
+    return response()->json(['message' => 'Chapitre mis à jour avec succès', 'chapter' => $chapter], 200);
+}
+
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Chapter $chapter)
     {
+        // Supprimer le fichier PDF associé s'il existe
+        if ($chapter->file_path) {
+            Storage::delete($chapter->file_path);
+        }
+    
+        // Supprimer le chapitre de la base de données
         $chapter->delete();
-        return response()->json(['message' => 'Chapitre supprimé avec succès', 'Chapitre' => $chapter], 201);
+    
+        return response()->json(['message' => 'Chapitre et fichier PDF supprimés avec succès', 'Chapitre' => $chapter], 201);
     }
+    
 
 
 
@@ -116,6 +154,7 @@ class ChapterController extends Controller
     /**
      * Retourner le fichier PDF du chapitre spécifié.
      */
+    // Télécharger un pdf 
     public function downloadPdf($chapterId)
     {
         // Récupérer le chapitre
@@ -136,42 +175,63 @@ class ChapterController extends Controller
         ]);
     }
 
-//fonction pour uploader une video pour un chapitre
-    public function uploadVideo(Request $request, $chapterId)
-    {
-        $request->validate([
-            'video' => 'required|mimes:mp4,avi,mov|max:20000', 
-        ]);
+    //télécharger un video
+    public function downloadVideo($chapterId)
+{
+    $chapter = Chapter::findOrFail($chapterId);
 
-        $chapter = Chapter::findOrFail($chapterId);
+    // Chemin complet vers le fichier vidéo
+    $videoPath = storage_path('app/' . $chapter->video_path);
 
-        // Ajoutez la vidéo au chapitre
-        $chapter->addVideo($request->file('video'));
-
-        return response()->json(['message' => 'Video uploaded successfully']);
+    // Vérifier si le fichier existe
+    if (!file_exists($videoPath)) {
+        return response()->json(['message' => 'Fichier vidéo non trouvé'], 404);
     }
+
+    // Retourner le fichier vidéo en tant que réponse HTTP
+    return response()->file($videoPath, [
+        'Content-Type' => 'video/mp4', // ou le type MIME correspondant
+        'Content-Disposition' => 'inline; filename="' . basename($videoPath) . '"'
+    ]);
+}
+
+
+//fonction pour uploader une video pour un chapitre
+    // public function uploadVideo(Request $request, $chapterId)
+    // {
+    //     $request->validate([
+    //         'video' => 'required|mimes:mp4,avi,mov|max:20000', 
+    //     ]);
+
+    //     $chapter = Chapter::findOrFail($chapterId);
+
+    //     // Ajoutez la vidéo au chapitre
+    //     $chapter->addVideo($request->file('video'));
+
+    //     return response()->json(['message' => 'Video uploaded successfully']);
+    // }
 
 
     
 
      // Afficher la vidéo d'un chapitre
-     public function readVideo($id)
-     {
-         $chapter = Chapter::findOrFail($id);
-         $video = $chapter->relationvideos->first(); // Obtenir la première vidéo, s'il y en a une
+    //  public function readVideo($id)
+    //  {
+    //      $chapter = Chapter::findOrFail($id);
+    //      $video = $chapter->relationvideos->first(); // Obtenir la première vidéo, s'il y en a une
  
-         if (!$video) {
-             return response()->json(['message' => 'No video found for this chapter'], 404);
-         }
+    //      if (!$video) {
+    //          return response()->json(['message' => 'No video found for this chapter'], 404);
+    //      }
  
-         return response()->json([
-             'chapter' => $chapter,
-             'video' => [
-                 'id' => $video->id,
-                 'url' => $video->getUrl(), // Obtenir l'URL de la vidéo
-                 'name' => $video->name, // Nom du fichier vidéo
-                 'mime_type' => $video->mime_type // Type MIME
-             ]
-         ]);
-     }
+    //      return response()->json([
+    //          'chapter' => $chapter,
+    //          'video' => [
+    //              'id' => $video->id,
+    //              'url' => $video->getUrl(), // Obtenir l'URL de la vidéo
+    //              'name' => $video->name, // Nom du fichier vidéo
+    //              'mime_type' => $video->mime_type // Type MIME
+    //          ]
+    //      ]);
+    //  }
 }

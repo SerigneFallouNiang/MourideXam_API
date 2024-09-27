@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('lien')->nullable();
             $table->text('description');
             $table->foreignIdFor(Book::class)->constrained('books')->onDelete('cascade');
-            $table->string('file_path');
+            $table->string('file_path')->nullable();
             $table->timestamps();
         });
     }
