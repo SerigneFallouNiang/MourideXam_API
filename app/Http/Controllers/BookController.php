@@ -103,6 +103,7 @@ class BookController extends Controller
                 'Lien' => $chapter->lien,
                 'Description' => $chapter->description,
                 'Fichier' => $chapter->file_path,
+                'Video' => $chapter->video_path,
             ];
         })
     ], 200);
