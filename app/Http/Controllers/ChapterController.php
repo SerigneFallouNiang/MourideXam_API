@@ -196,6 +196,16 @@ class ChapterController extends Controller
 }
 
 
+//Marqué chapitre comme lue
+public function markAsRead($id)
+{
+    $chapter = Chapter::findOrFail($id);
+    $chapter->lu = true;
+    $chapter->save();
+
+    return response()->json(['message' => 'Chapitre marqué comme lu',$chapter]);
+}
+
 //fonction pour uploader une video pour un chapitre
     // public function uploadVideo(Request $request, $chapterId)
     // {

@@ -90,9 +90,10 @@ Route::post('books/{book}', [BookController::class, 'update']);
 Route::get('/books/{id}/chapters', [BookController::class, 'getChaptersByBook']);
 
 
-
-// Route::post('/chapters', [ChapterController::class, 'store']);
-// Route::get('/chapters', [ChapterController::class, 'index']);
+//Chapitre
+//Marqué un chapitre comme lue
+Route::post('/chapters/{id}/mark-read', [ChapterController::class, 'markAsRead']);
+//route crud chapitre
 Route::apiResource('chapters', ChapterController::class);
 //route pour l'upload d'une video à un chapitre
 Route::post('/chapters/{chapter}/upload-video', [ChapterController::class, 'uploadVideo']);
