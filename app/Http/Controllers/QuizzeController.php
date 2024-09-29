@@ -154,6 +154,13 @@ public function submitQuiz(Request $request, $quizId)
     $quiz = Quizze::findOrFail($quizId);
     $user = Auth::user();
 
+      // Vérifiez si l'utilisateur est authentifié
+      if (!$user) {
+        return response()->json([
+            'message' => 'Utilisateur non authentifié',
+        ], 401);
+    }
+
     $validatedData = $request->validate([
         'answers' => 'required|array',
         'answers.*.question_id' => 'required|exists:questions,id',

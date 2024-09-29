@@ -64,14 +64,14 @@ Route::delete('quizzes/{quizze}', [QuizzeController::class, 'destroy']);
 
 
 
-Route::middleware('auth:api')->group(function () {
+// Route::middleware('auth:api')->group(function () {
   Route::apiResource('roles', RoleController::class);
   Route::get('/permissions', [RoleController::class, 'listPermission'])->name('permissions.list');
 
   //route pour passer un quiz
   Route::get('/quiz/start/{chapterId}', [QuizzeController::class, 'startQuiz']);
 Route::post('/quiz/submit/{quizId}', [QuizzeController::class, 'submitQuiz']);
-});
+// });
 
 // Route::group(['middleware' => ['auth:api']], function() {
 // categories
