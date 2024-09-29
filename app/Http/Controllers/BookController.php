@@ -99,6 +99,7 @@ class BookController extends Controller
         'Livre' => $book->title,
         'Chapitres' => $book->chapters->map(function ($chapter) {
             return [
+                'id' =>$chapter->id,
                 'Titre du chapitre' => $chapter->title,
                 'Lien' => $chapter->lien,
                 'Description' => $chapter->description,
