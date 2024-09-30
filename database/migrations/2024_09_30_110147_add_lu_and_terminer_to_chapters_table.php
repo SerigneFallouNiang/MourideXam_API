@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('chapters', function (Blueprint $table) {
             $table->boolean('lu')->default(false);
-            $table->boolean('terminer')->default(false);
+            $table->string('terminer')->default(0);
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('chapters', function (Blueprint $table) {
-            $table->dropColumn(['lu', 'terminer']);
+            Schema::dropIfExists('lu','terminer');
         });
     }
 };

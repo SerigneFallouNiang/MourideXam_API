@@ -199,7 +199,14 @@ public function submitQuiz(Request $request, $quizId)
     }
 
     $score = ($correctAnswers / $totalQuestions) * 100;
-    $isPassed = $score >= 70; // Considérons que 70% est la note de passage
+    // Considérons que 70% est la note de passage
+    $isPassed = $score >= 70; 
+
+     // Mettre à jour l'état du chapitre en fonction du résultat du quiz
+     $chapter = Chapter::findOrFail($quiz->chapter_id);
+     $chapter->terminer = $isPassed ? 1 : 2; // 1 si réussi, 2 si échoué
+     $chapter->save();
+     
 
     // Mise à jour du quiz avec le score et le statut
     $quiz->update([
