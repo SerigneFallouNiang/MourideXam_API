@@ -141,10 +141,28 @@ Route::post('login',[UserAuthController::class,'login']);
 Route::get('logout',[UserAuthController::class,'logout'])
   ->middleware('auth:api');
 
-// Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-//     ->middleware('guest')
-//     ->name('login');
 
-// Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
-//     ->middleware('auth:api')
-//     ->name('logout');
+
+
+
+
+//changement de langue
+Route::get('/langue/{lang}', function ($lang, Request $request) {
+  // Vérifie si la langue est valide
+  $availableLangs = ['fr', 'en', 'wo', 'ar'];
+
+  if (in_array($lang, $availableLangs)) {
+      // Récupère l'utilisateur authentifié
+      $user = Auth::user();
+
+      // Met à jour la préférence de langue dans le profil de l'utilisateur (si vous avez un champ pour ça)
+      $user->language = $lang;
+      $user->save();
+
+      // Renvoie une réponse JSON
+      return response()->json(['message' => 'Langue changée avec succès', 'lang' => $lang]);
+  }
+
+  // Langue non valide
+  return response()->json(['message' => 'Langue invalide'], 400);
+})->middleware('auth:api')->name('lang.change');
