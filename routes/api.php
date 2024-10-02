@@ -84,6 +84,9 @@ Route::delete('categories_mass_destroy', [CategoryController::class, 'massDestro
 
 
 //livres 
+// récupération de l'historie des livre par rapport à l'utilisateur connecter 
+Route::get('/books/read-chapters/user', [BookController::class, 'getBooksWithReadChaptersByUser']);
+
 Route::apiResource('books', BookController::class)->only('store', 'destroy');
 Route::apiResource('books', BookController::class)->only('index', 'show');
 Route::post('books/{book}', [BookController::class, 'update']);

@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\Chapter;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\File;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
@@ -109,6 +111,42 @@ class BookController extends Controller
                 'terminer' => $chapter->terminer,
             ];
         })
+    ], 200);
+}
+
+
+
+//fonction pour la récupération de l'historique dans le front
+public function getBooksWithReadChaptersByUser()
+{
+    // Récupérer l'utilisateur authentifié
+    $user = Auth::user();
+    
+    // Si l'utilisateur n'est pas authentifié, retourner une erreur
+    if (!$user) {
+        return response()->json([
+            'message' => 'Utilisateur non authentifié',
+        ], 401);
+    }
+
+    // Récupérer tous les livres qui ont au moins un chapitre avec 'terminer' = 1 ou 2 pour cet utilisateur
+    $books = Book::whereHas('chapters.userProgress', function ($query) use ($user) {
+        $query->where('user_id', $user->id)
+              ->whereIn('terminer', [1, 2]); // Condition pour les chapitres terminés ou lus par cet utilisateur
+    })->get();
+
+    // Vérifier si des livres ont été trouvés
+    if ($books->isEmpty()) {
+        return response()->json([
+            'message' => 'Aucun livre avec des chapitres terminés trouvé pour cet utilisateur',
+            'books' => []
+        ], 200);
+    }
+
+    // Retourner les livres sans les détails des chapitres
+    return response()->json([
+        'message' => 'Livres avec chapitres terminés récupérés avec succès pour l\'utilisateur',
+        'books' => $books
     ], 200);
 }
 
