@@ -2,12 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Question;
+use App\Services\TranslationService;
 use App\Http\Requests\StoreQuestionRequest;
 use App\Http\Requests\UpdateQuestionRequest;
-use App\Models\Question;
 
 class QuestionController extends Controller
 {
+
+       //dépendance pour la traduction 
+       protected $translationService;
+
+       public function __construct(TranslationService $translationService)
+       {
+           $this->translationService = $translationService;
+       }
+
+       
     /**
      * Display a listing of the resource.
      */
@@ -21,16 +32,36 @@ class QuestionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreQuestionRequest $request)
-    {
-        $validatedData = $request->validate([
-            'text' => 'required|string',
-            'points' => 'required|integer',
-        ]);
 
-        $question = Question::create($validatedData);
-        return response()->json($question, 201);
+    public function store(StoreQuestionRequest $request)
+{
+    // Validation des données de la question
+    $validatedData = $request->validate([
+        'text' => 'required|string',
+        'points' => 'required|integer',
+    ]);
+
+    // Créer la question
+    $question = Question::create($validatedData);
+
+    // Traduire le texte de la question dans les autres langues supportées
+    $translations = [];
+    foreach ($this->translationService->getSupportedLanguages() as $lang) {
+        if ($lang !== $request->user()->locale) {
+            $translations[$lang] = [
+                'text' => $this->translationService->translate($validatedData['text'], $lang, $request->user()->locale),
+                // Ajoutez d'autres champs à traduire ici si nécessaire
+            ];
+        }
     }
+
+    // Assigner les traductions à la question
+    $question->translations = $translations; // Assurez-vous que votre modèle gère cela
+    $question->save(); // Sauvegarder la question et ses traductions dans la base de données
+
+    return response()->json($question, 201);
+}
+
 
     /**
      * Display the specified resource.
@@ -50,6 +81,19 @@ class QuestionController extends Controller
             'text' => 'sometimes|string',
             'points' => 'sometimes|integer'
         ]);
+
+                // Traduire le titre et le contenu dans les autres langues supportées
+                $translations = [];
+                foreach ($this->translationService->getSupportedLanguages() as $lang) {
+                    if ($lang !== $request->user()->locale) {
+                        $translations[$lang] = [
+                            'text' => $this->translationService->translate($question->text, $lang, $request->user()->locale),
+                        ];
+                    }
+                }
+            
+                // Assigner les traductions
+                $question->translations = $translations;
 
         $question->update($validatedData);
         return response()->json($question, 200);

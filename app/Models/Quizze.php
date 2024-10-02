@@ -12,6 +12,11 @@ class Quizze extends Model
     protected $guarded = [];
 
 
+    protected $casts = [
+        'translations' => 'array',
+    ];
+
+    
     //the relation of other table
     public function chapter()
     {

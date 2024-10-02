@@ -12,6 +12,10 @@ class Book extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'translations' => 'array',
+    ];
+
     public function category()
     {
         return $this->belongsTo(Category::class);

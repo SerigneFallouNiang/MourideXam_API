@@ -15,6 +15,9 @@ class Chapter extends Model  implements HasMedia
     // protected $fillable = ['title', 'description', 'file_path'];
     protected $guarded = [];
 
+    protected $casts = [
+        'translations' => 'array',
+    ];
 
 
       // Méthode pour ajouter une vidéo au chapitre

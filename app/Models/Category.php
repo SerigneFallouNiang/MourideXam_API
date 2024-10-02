@@ -11,6 +11,10 @@ class Category extends Model
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
+    protected $casts = [
+        'translations' => 'array',
+    ];
+
     public function books()
     {
         return $this->hasMany(Book::class);

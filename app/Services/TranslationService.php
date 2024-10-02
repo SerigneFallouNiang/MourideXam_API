@@ -1,32 +1,47 @@
 <?php
-// app/Services/TranslationService.php
+
 namespace App\Services;
 
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 class TranslationService
 {
     protected $client;
+    protected $apiUrl;
+    protected $supportedLanguages = ['fr', 'en', 'ar', 'wo'];
 
     public function __construct()
     {
-        $this->client = new Client([
-            'base_uri' => 'https://libretranslate.com'
-        ]);
+        $this->client = new Client();
+        $this->apiUrl = env('LIBRETRANSLATE_API_URL');
     }
 
-    public function translateText($text, $targetLanguage = 'fr')
+    public function translate($text, $targetLang, $sourceLang = 'auto')
     {
-        $response = $this->client->post('/translate', [
-            'json' => [
-                'q' => $text,
-                'source' => 'auto', // Détection automatique de la langue d'origine
-                'target' => $targetLanguage,
-                'format' => 'text'
-            ]
-        ]);
+        if (!in_array($targetLang, $this->supportedLanguages)) {
+            throw new \InvalidArgumentException("La langue cible '$targetLang' n'est pas prise en charge.");
+        }
 
-        $body = json_decode($response->getBody(), true);
-        return $body['translatedText'];
+        try {
+            $response = $this->client->post($this->apiUrl, [
+                'json' => [
+                    'q' => $text,
+                    'source' => $sourceLang,
+                    'target' => $targetLang,
+                ],
+            ]);
+
+            $result = json_decode($response->getBody(), true);
+            return $result['translatedText'] ?? $text;
+        } catch (\Exception $e) {
+            Log::error('Erreur de traduction: ' . $e->getMessage());
+            return $text; // Retourne le texte original en cas d'erreur
+        }
+    }
+
+    public function getSupportedLanguages()
+    {
+        return $this->supportedLanguages;
     }
 }

@@ -5,13 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Chapter;
 use App\Http\Controllers\Controller;
+use App\Services\TranslationService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
-use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
+
+     //dépendance pour la traduction 
+     protected $translationService;
+
+     public function __construct(TranslationService $translationService)
+     {
+         $this->translationService = $translationService;
+     }
     /**
      * Display a listing of the resource.
      */
@@ -33,6 +42,20 @@ class BookController extends Controller
             $image = $request->file('image');
             $livre->image = $image->store('livres', 'public');
         }
+
+        // Traduire le titre et le contenu dans les autres langues supportées
+        $translations = [];
+        foreach ($this->translationService->getSupportedLanguages() as $lang) {
+            if ($lang !== $request->user()->locale) {
+                $translations[$lang] = [
+                    'title' => $this->translationService->translate($livre->title, $lang, $request->user()->locale),
+                    'description' => $this->translationService->translate($livre->description, $lang, $request->user()->locale),
+                ];
+            }
+        }
+
+          // Assigner les traductions
+          $livre->translations = $translations;
         $livre->save();
         return response()->json(['message' => 'Livre créé avec succès', 'Livre' => $livre], 201);
     }
@@ -72,6 +95,19 @@ class BookController extends Controller
         if ($book->quantite > 0) {
             $book->update(['disponible' => true]);
         }
+
+           // Mettre à jour les traductions
+        $translations = $category->translations ?? [];
+        foreach ($this->translationService->getSupportedLanguages() as $lang) {
+            if ($lang !== $request->user()->locale) {
+                $translations[$lang] = [
+                    'title' => $this->translationService->translate($category->title, $lang, $request->user()->locale),
+                    'description' => $this->translationService->translate($category->description, $lang, $request->user()->locale),
+                ];
+            }
+        }
+
+        $category->translations = $translations;
         $book->update();
         return response()->json(['message' => 'Livre modifié avec succès', 'Livre' => $book], 201);
     }
@@ -88,23 +124,64 @@ class BookController extends Controller
 
 
 //pour récupérer l'ensemble des chapitre d'un livre
-    public function getChaptersByBook($id)
+//     public function getChaptersByBook($id)
+// {
+    
+//     $book = Book::with('chapters')->find($id);
+
+//     if (!$book) {
+//         return response()->json(['message' => 'Livre non trouvé'], 404);
+//     }
+
+//     return response()->json([
+//         'message' => 'Chapitres récupérés avec succès',
+//         'Livre' => $book->title,
+//         'Chapitres' => $book->chapters->map(function ($chapter) {
+//             return [
+//                 'id' =>$chapter->id,
+//                 'Titre du chapitre' => $chapter->title,
+//                 'Lien' => $chapter->lien,
+//                 'Description' => $chapter->description,
+//                 'Fichier' => $chapter->file_path,
+//                 'Video' => $chapter->video_path,
+//                 'lue' => $chapter->lu,
+//                 'terminer' => $chapter->terminer,
+//             ];
+//         })
+//     ], 200);
+// }
+
+public function getChaptersByBook($id)
 {
+    // Récupérer la langue choisie par l'utilisateur ou utiliser la locale par défaut
+    $locale = app()->getLocale();
+    
+    // Vérifiez si la langue est prise en charge
+    if (!in_array($locale, $this->translationService->getSupportedLanguages())) {
+        return response()->json(['message' => 'Langue non supportée'], 400);
+    }
+
+    // Trouver le livre avec ses chapitres
     $book = Book::with('chapters')->find($id);
 
+    // Vérifier si le livre existe
     if (!$book) {
         return response()->json(['message' => 'Livre non trouvé'], 404);
     }
 
+    // Traduire le titre du livre
+    $translatedBookTitle = $this->translationService->translate($book->title, $locale);
+
+    // Retourner les chapitres traduits
     return response()->json([
         'message' => 'Chapitres récupérés avec succès',
-        'Livre' => $book->title,
-        'Chapitres' => $book->chapters->map(function ($chapter) {
+        'Livre' => $translatedBookTitle, // Titre traduit du livre
+        'Chapitres' => $book->chapters->map(function ($chapter) use ($locale) {
             return [
-                'id' =>$chapter->id,
-                'Titre du chapitre' => $chapter->title,
+                'id' => $chapter->id,
+                'Titre du chapitre' => $this->translationService->translate($chapter->title, $locale),
                 'Lien' => $chapter->lien,
-                'Description' => $chapter->description,
+                'Description' => $this->translationService->translate($chapter->description, $locale),
                 'Fichier' => $chapter->file_path,
                 'Video' => $chapter->video_path,
                 'lue' => $chapter->lu,
@@ -113,6 +190,7 @@ class BookController extends Controller
         })
     ], 200);
 }
+
 
 
 

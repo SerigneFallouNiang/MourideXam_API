@@ -2,18 +2,26 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\JsonResponse; 
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Validation\Rules;
+use Illuminate\Http\JsonResponse; 
+use App\Http\Controllers\Controller;
+use App\Services\TranslationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
+use Illuminate\Auth\Events\Registered;
 
 class RegisteredUserController extends Controller
 {
+
+    protected $translationService;
+
+        public function __construct(TranslationService $translationService)
+        {
+            $this->translationService = $translationService;
+        }
     /**
      * Handle an incoming registration request.
      *
@@ -33,6 +41,7 @@ class RegisteredUserController extends Controller
             'email' => $request->input('email'),
             'telephone' => $request->input('telephone'),
             'password' => Hash::make($request->input('password')),
+            'locale' => 'fr', // Définir la langue par défaut à 'fr'
         ]);
 
 

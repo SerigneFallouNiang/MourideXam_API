@@ -122,9 +122,13 @@ Route::get('/chapter/{id}/download', [ChapterController::class, 'downloadPdf']);
 
 
 //les routes du packege breez
-Route::post('/register', [RegisteredUserController::class, 'store'])
-                ->middleware('guest')
-                ->name('register');
+// Route::post('/register', [RegisteredUserController::class, 'store'])
+//                 ->middleware('guest')
+//                 ->name('register');
+Route::post('/register', [UserAuthController::class, 'register']);
+// Route pour changer la langue
+// Route::post('/set-language', [AuthController::class, 'setLanguage']);
+Route::middleware('auth:api')->post('/set-language', [UserAuthController::class, 'setLanguage']);
 
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
                 ->middleware('guest')

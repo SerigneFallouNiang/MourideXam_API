@@ -11,10 +11,12 @@ class Question extends Model
 
     protected $guarded = [];
 
-    // public function quiz()
-    // {
-    //     return $this->belongsTo(Quizze::class);
-    // }
+    protected $casts = [
+        'translations' => 'array',
+    ];
+
+
+ 
     public function quizzes()
     {
         return $this->belongsToMany(Quizze::class, 'quizze_question');
