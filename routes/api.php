@@ -87,10 +87,14 @@ Route::delete('categories_mass_destroy', [CategoryController::class, 'massDestro
 Route::apiResource('books', BookController::class)->only('store', 'destroy');
 Route::apiResource('books', BookController::class)->only('index', 'show');
 Route::post('books/{book}', [BookController::class, 'update']);
-Route::get('/books/{id}/chapters', [BookController::class, 'getChaptersByBook']);
+// Route::get('/books/{id}/chapters', [BookController::class, 'getChaptersByBook']);
 
 
 //Chapitre
+// Route::get('/books/{bookId}/chapters/status', [ChapterController::class, 'getChapterEtatByUser']);
+Route::get('/books/{bookId}/chapters', [ChapterController::class, 'getChapterEtatByUser']);
+
+// Route::middleware('auth:api')->get('/books/{bookId}/chapters', [ChapterController::class, 'getBooksByBook']);
 //Marqué un chapitre comme lue
 Route::post('/chapters/{id}/mark-read', [ChapterController::class, 'markAsRead']);
 //route crud chapitre

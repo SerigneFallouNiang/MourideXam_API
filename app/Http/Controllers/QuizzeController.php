@@ -202,10 +202,10 @@ public function submitQuiz(Request $request, $quizId)
     // Considérons que 70% est la note de passage
     $isPassed = $score >= 70; 
 
-     // Mettre à jour l'état du chapitre en fonction du résultat du quiz
-     $chapter = Chapter::findOrFail($quiz->chapter_id);
-     $chapter->terminer = $isPassed ? 1 : 2; // 1 si réussi, 2 si échoué
-     $chapter->save();
+    //  // Mettre à jour l'état du chapitre en fonction du résultat du quiz
+    //  $chapter = User_progres::findOrFail($quiz->user_id);
+    //  $chapter->terminer = $isPassed ? 1 : 2; // 1 si réussi, 2 si échoué
+    //  $chapter->save();
      
 
     // Mise à jour du quiz avec le score et le statut
@@ -214,10 +214,21 @@ public function submitQuiz(Request $request, $quizId)
         'is_passed' => $isPassed,
     ]);
 
-    // Mise à jour du progrès de l'utilisateur
-    User_progres::updateOrCreate(
-        ['user_id' => $user->id, 'chapter_id' => $quiz->chapter_id],
-        ['is_completed' => $isPassed]
+    // // Mise à jour du progrès de l'utilisateur
+    // $userProgress =  User_progres::updateOrCreate(
+    //     ['user_id' => $user->id, 'chapter_id' => $quiz->chapter_id],
+    //     ['is_completed' => $isPassed]
+    // );
+       // Mise à jour ou création du progrès de l'utilisateur pour ce chapitre
+       $userProgress = User_progres::updateOrCreate(
+        [
+            'user_id' => $user->id, 
+            'chapter_id' => $quiz->chapter_id
+        ], 
+        [
+            'is_completed' => $isPassed,
+            'terminer' => $isPassed ? '1' : '2'  // 1 pour réussi, 2 pour échoué
+        ]
     );
 
     // Envoyer des notifications si nécessaire
@@ -230,13 +241,16 @@ public function submitQuiz(Request $request, $quizId)
         }
     }
 
-    return response()->json([
+      // Retourner une réponse JSON avec les résultats
+      return response()->json([
         'message' => 'Quiz terminé',
-        'score' => $score,
-        'correctAnswers' => $correctAnswers,
-        'totalQuestions' => $totalQuestions,
-        'isPassed' => $isPassed,
-        'detailedResults' => $detailedResults
+        'user_id' => $user->id,  // ID de l'utilisateur pour traçabilité
+        'chapter_id' => $quiz->chapter_id,  // ID du chapitre
+        'score' => $score,  // Score obtenu
+        'correctAnswers' => $correctAnswers,  // Nombre de réponses correctes
+        'totalQuestions' => $totalQuestions,  // Nombre total de questions
+        'isPassed' => $isPassed,  // Statut de passage ou échec
+        'detailedResults' => $detailedResults,  // Détails des réponses
     ]);
 }
 

@@ -1,10 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Book;
 use App\Models\Chapter;
 use Spatie\PdfToImage\Pdf;
+use App\Models\User_progres;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreChapterRequest;
 use App\Http\Requests\UpdateChapterRequest;
@@ -196,15 +199,42 @@ class ChapterController extends Controller
 }
 
 
-//Marqué chapitre comme lue
-public function markAsRead($id)
+public function markAsRead($chapterId)
 {
-    $chapter = Chapter::findOrFail($id);
-    $chapter->lu = true;
-    $chapter->save();
+    // Récupérer l'utilisateur connecté
+    $user = Auth::user();
 
-    return response()->json(['message' => 'Chapitre marqué comme lu',$chapter]);
+    // Vérifier si l'utilisateur est authentifié
+    if (!$user) {
+        return response()->json([
+            'message' => 'Utilisateur non authentifié',
+        ], 401);
+    }
+
+    // Rechercher ou créer le progrès de l'utilisateur pour le chapitre
+    $userProgress = User_progres::where('user_id', $user->id)
+                                ->where('chapter_id', $chapterId)
+                                ->firstOrCreate(
+                                    ['user_id' => $user->id, 'chapter_id' => $chapterId],
+                                    ['lu' => true]  // Marquer comme lu si le progrès n'existe pas encore
+                                );
+
+    // Si le chapitre est déjà marqué comme lu, retourner un message approprié
+    if ($userProgress->lu) {
+        return response()->json(['message' => 'Chapitre déjà marqué comme lu.']);
+    }
+
+    // Marquer le chapitre comme lu
+    $userProgress->lu = true;
+    $userProgress->save();
+
+    return response()->json([
+        'message' => 'Chapitre marqué comme lu avec succès',
+        'chapter_id' => $chapterId,  // Retourner l'ID du chapitre
+        'user_id' => $user->id,  // Retourner l'ID de l'utilisateur
+    ]);
 }
+
 
 //fonction pour uploader une video pour un chapitre
     // public function uploadVideo(Request $request, $chapterId)
@@ -244,4 +274,86 @@ public function markAsRead($id)
     //          ]
     //      ]);
     //  }
+
+
+    // public function getChapterEtatByUser($bookId)
+    // {
+    //     // Récupérer l'utilisateur authentifié
+    //     $user = Auth::user();
+    
+    //     // Vérifier si l'utilisateur est authentifié
+    //     if (!$user) {
+    //         $chapter = Chapter::all();
+    //         return response()->json(['message' => 'Liste des chapitres', 'Chapitres' => $chapter], 201);
+    //     }
+
+    //     // Récupérer les chapitres avec la progression de l'utilisateur
+    //     $chapters = Chapter::with(['userProgress' => function($query) use ($user) {
+    //         $query->where('user_id', $user->id);
+    //     }])->where('book_id', $bookId)->get();
+    
+    //     // Marquer l'état de lecture pour chaque chapitre
+    //     $chapters = $chapters->map(function ($chapter) {
+    //         // Si l'utilisateur a progressé dans le chapitre, ajouter l'état lu
+    //         $chapter->is_read = $chapter->userProgress->isNotEmpty() && $chapter->userProgress[0]->lu;
+    //         $chapter->lu = $chapter->userProgress->isNotEmpty() && $chapter->userProgress[0]->lu;
+    //         $chapter->terminer = $chapter->userProgress->isNotEmpty() && $chapter->userProgress[0]->terminer;
+    //         return $chapter;
+            
+    //     });
+    
+    //     return response()->json($chapters);
+    // }
+    
+    public function getChapterEtatByUser($bookId)
+    {
+        // Récupérer l'utilisateur authentifié
+        $user = Auth::user();
+        
+        // Si l'utilisateur n'est pas authentifié, retourner tous les chapitres sans état
+        if (!$user) {
+            $chapters = Chapter::where('book_id', $bookId)->get();
+            return response()->json([
+                'message' => 'Liste des chapitres',
+                'Chapitres' => $chapters->map(function ($chapter) {
+                    return [
+                        'id' => $chapter->id,
+                        'Titre du chapitre' => $chapter->title,
+                        'Lien' => $chapter->lien,
+                        'Description' => $chapter->description,
+                        'Fichier' => $chapter->file_path,
+                        'Video' => $chapter->video_path,
+                        'lue' => false,
+                        'terminer' => false,
+                    ];
+                })
+            ], 200);
+        }
+    
+        // Récupérer les chapitres avec la progression de l'utilisateur
+        $chapters = Chapter::with(['userProgress' => function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        }])->where('book_id', $bookId)->get();
+        
+        // Formater la réponse avec l'état de lecture de l'utilisateur
+        return response()->json([
+            'message' => 'Chapitres récupérés avec succès',
+            'Livre' => Book::find($bookId)->title,
+            'Chapitres' => $chapters->map(function ($chapter) {
+                return [
+                    'id' => $chapter->id,
+                    'Titre du chapitre' => $chapter->title,
+                    'Lien' => $chapter->lien,
+                    'Description' => $chapter->description,
+                    'Fichier' => $chapter->file_path,
+                    'Video' => $chapter->video_path,
+                    // Ajouter l'état "lu" et "terminer" selon la progression de l'utilisateur
+                    'lue' => $chapter->userProgress->isNotEmpty() && $chapter->userProgress[0]->lu,
+                    'terminer' => $chapter->userProgress->isNotEmpty() && $chapter->userProgress[0]->terminer,
+                ];
+            })
+        ], 200);
+    }
+      
+
 }
