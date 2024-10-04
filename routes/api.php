@@ -39,7 +39,7 @@ Route::put('/user/profile', [RegisteredUserController::class, 'update']);
 Route::get('quizzes/{quizId}/questions', [QuestionController::class, 'index']);
 Route::get('questions/{question}', [QuestionController::class, 'show']);
 Route::post('questions', [QuestionController::class, 'store']);
-Route::put('questions/{question}', [QuestionController::class, 'update']);
+Route::post('questions/{question}', [QuestionController::class, 'update']);
 Route::delete('questions/{question}', [QuestionController::class, 'destroy']);
 
 
@@ -93,6 +93,7 @@ Route::get('/books/read-chapters/user', [BookController::class, 'getBooksWithRea
 Route::apiResource('books', BookController::class)->only('store', 'destroy');
 Route::apiResource('books', BookController::class)->only('index', 'show');
 Route::post('books/{book}', [BookController::class, 'update']);
+Route::get('books/{book}', [BookController::class, 'edit']);
 // Route::get('/books/{id}/chapters', [BookController::class, 'getChaptersByBook']);
 
 
@@ -104,7 +105,10 @@ Route::get('/books/{bookId}/chapters', [ChapterController::class, 'getChapterEta
 //Marqué un chapitre comme lue
 Route::post('/chapters/{id}/mark-read', [ChapterController::class, 'markAsRead']);
 //route crud chapitre
-Route::apiResource('chapters', ChapterController::class);
+// Route::apiResource('chapters', ChapterController::class);
+Route::apiResource('chapters', ChapterController::class)->only('store', 'destroy');
+Route::apiResource('chapters', ChapterController::class)->only('index', 'show');
+Route::post('chapters/{book}', [ChapterController::class, 'update']);
 //route pour l'upload d'une video à un chapitre
 Route::post('/chapters/{chapter}/upload-video', [ChapterController::class, 'uploadVideo']);
 //lire video 

@@ -68,13 +68,15 @@ class BookController extends Controller
         $chapters = $book->chapters;
         return response()->json(['message' => 'Liste des chapitres', 'chapitres' => $chapters], 200);
     }
+    
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(Book $book)
     {
-        //
+        // $chapters = $book->chapters;
+        return response()->json(['message' => 'Livre Show', 'book' => $book], 200);
     }
 
     /**
@@ -101,13 +103,13 @@ class BookController extends Controller
         foreach ($this->translationService->getSupportedLanguages() as $lang) {
             if ($lang !== $request->user()->locale) {
                 $translations[$lang] = [
-                    'title' => $this->translationService->translate($category->title, $lang, $request->user()->locale),
-                    'description' => $this->translationService->translate($category->description, $lang, $request->user()->locale),
+                    'title' => $this->translationService->translate($book->title, $lang, $request->user()->locale),
+                    'description' => $this->translationService->translate($book->description, $lang, $request->user()->locale),
                 ];
             }
         }
 
-        $category->translations = $translations;
+        $book->translations = $translations;
         $book->update();
         return response()->json(['message' => 'Livre modifié avec succès', 'Livre' => $book], 201);
     }
