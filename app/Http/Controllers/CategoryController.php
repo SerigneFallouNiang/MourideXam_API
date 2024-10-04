@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Services\TranslationService;
+use Illuminate\Support\Facades\File;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 
@@ -123,10 +124,27 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Category $category)
+    public function show($id)
     {
-        //
+        $locale = app()->getLocale();
+    
+        // Récupérer la catégorie par ID ou renvoyer une erreur 404
+        $category = Category::findOrFail($id);
+    
+        // Traduire les champs pour la langue demandée
+        $categories = [
+            'id' => $category->id,
+            'name' => $this->translationService->translate($category->name, $locale),
+            'description' => $this->translationService->translate($category->description, $locale),
+            'image' => $category->image,
+        ];
+    
+        return response()->json([
+            'message' => 'Catégorie récupérée avec succès',
+            'category' => $categories,
+        ], 200);
     }
+    
 
 
     /**
@@ -139,7 +157,7 @@ class CategoryController extends Controller
     
     // Ajouter l'image si elle existe
     if ($request->hasFile('image')) {
-        if (File::exists(public_path("storage/" . $category->image))) {
+        if (File::exists(public_path("storage/livres" . $category->image))) {
             File::delete(public_path($category->image));
         }
         $image = $request->file('image');

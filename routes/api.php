@@ -77,9 +77,12 @@ Route::post('/quiz/submit/{quizId}', [QuizzeController::class, 'submitQuiz']);
 // categories
 // listes des livres par categorie 
 Route::get('categories/{categoryId}/books', [CategoryController::class, 'getBooks']);
-Route::resource('categories',CategoryController::class);
+// Route::resource('categories',CategoryController::class);
 Route::delete('categories_mass_destroy', [CategoryController::class, 'massDestroy'])->name('categories.mass_destroy');
-
+Route::resource('categories', CategoryController::class)
+    ->except(['update']);
+    Route::post('categories/{category}', [CategoryController::class, 'update'])
+    ->name('update');
 // });
 
 
