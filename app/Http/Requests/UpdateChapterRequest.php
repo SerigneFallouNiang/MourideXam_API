@@ -26,9 +26,8 @@ class UpdateChapterRequest extends FormRequest
         return [
             'title' => 'sometimes|string|max:255',
             'description' => 'sometimes|string',
-            'lien' => 'nullable|string',
             "book_id" => ["sometimes", "exists:books,id"],
-            'pdf' => 'nullable|mimes:pdf|max:10000', // Taille maximale de 10 Mo
+            // 'pdf' => 'nullable|mimes:pdf|max:10000', // Taille maximale de 10 Mo
         ];
     }
 

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Services\TranslationService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreChapterRequest;
 use App\Http\Requests\UpdateChapterRequest;
@@ -102,39 +103,29 @@ class ChapterController extends Controller
         return response()->json(['message' => 'Liste des chapitres', 'Chapitre' => $chapter], 201);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
+    
     public function update(UpdateChapterRequest $request, Chapter $chapter)
     {
-        // Valider les données de la requête
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'video' => 'nullable|mimes:mp4,avi,mov|max:30000',
-            'pdf' => 'nullable|mimes:pdf|max:20000',
-        ]);
+        // Remplir le chapitre avec les données validées
+        $chapter->fill($request->validated());
     
         // Gérer le fichier PDF
         if ($request->hasFile('pdf')) {
-            // Supprimer l'ancien fichier PDF s'il existe
-            if ($chapter->file_path) {
-                Storage::delete('public/' . $chapter->file_path);
+            if (File::exists(public_path("storage/" . $chapter->file_path))) {
+                File::delete(public_path($chapter->file_path));
             }
-            // Stocker le nouveau fichier PDF
-            $pdfPath = $request->file('pdf')->store('public/pdf');
-            $validatedData['file_path'] = 'pdf/' . basename($pdfPath);
+            $pdf = $request->file('pdf');
+            $chapter->file_path = $pdf->store('pdf', 'public');
         }
     
         // Gérer le fichier vidéo
         if ($request->hasFile('video')) {
-            // Supprimer l'ancienne vidéo si elle existe
-            if ($chapter->video_path) {
-                Storage::delete('public/' . $chapter->video_path);
+            if (File::exists(public_path("storage/" . $chapter->video_path))) {
+                File::delete(public_path($chapter->video_path));
             }
-            // Stocker la nouvelle vidéo
-            $videoPath = $request->file('video')->store('public/videos');
-            $validatedData['video_path'] = 'videos/' . basename($videoPath);
+            $video = $request->file('video');
+            $chapter->video_path = $video->store('videos', 'public');
         }
     
         // Mettre à jour les traductions
@@ -142,19 +133,19 @@ class ChapterController extends Controller
         foreach ($this->translationService->getSupportedLanguages() as $lang) {
             if ($lang !== $request->user()->locale) {
                 $translations[$lang] = [
-                    'title' => $this->translationService->translate($validatedData['title'], $lang, $request->user()->locale),
-                    'description' => $this->translationService->translate($validatedData['description'], $lang, $request->user()->locale),
+                    'title' => $this->translationService->translate($chapter->title, $lang, $request->user()->locale),
+                    'description' => $this->translationService->translate($chapter->description, $lang, $request->user()->locale),
                 ];
             }
         }
+        $chapter->translations = $translations;
     
-        // Mettre à jour le chapitre avec les nouvelles données et les traductions
-        $chapter->update(array_merge($validatedData, ['translations' => $translations]));
+        // Sauvegarder les modifications
+        $chapter->save();
     
-        return response()->json(['message' => 'Chapitre mis à jour avec succès', 'chapter' => $chapter], 200);
+        return response()->json(['message' => 'Chapitre modifié avec succès', 'Chapitre' => $chapter], 200);
     }
     
-
     /**
      * Remove the specified resource from storage.
      */

@@ -108,7 +108,7 @@ Route::post('/chapters/{id}/mark-read', [ChapterController::class, 'markAsRead']
 // Route::apiResource('chapters', ChapterController::class);
 Route::apiResource('chapters', ChapterController::class)->only('store', 'destroy');
 Route::apiResource('chapters', ChapterController::class)->only('index', 'show');
-Route::post('chapters/{book}', [ChapterController::class, 'update']);
+Route::post('chapters/{chapter}', [ChapterController::class, 'update']);
 //route pour l'upload d'une video à un chapitre
 Route::post('/chapters/{chapter}/upload-video', [ChapterController::class, 'uploadVideo']);
 //lire video 
