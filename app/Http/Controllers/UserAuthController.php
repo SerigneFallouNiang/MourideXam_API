@@ -89,6 +89,22 @@ public function login(Request $request)
     ]);
 }
 
+// récupération des utilisateurs du platforme 
+public function getAllUsers(): JsonResponse
+{
+    // Récupérer l'utilisateur authentifié
+    $currentUser = auth()->user();
+
+    // Récupérer tous les utilisateurs sauf celui qui est connecté
+    $users = User::where('id', '!=', $currentUser->id)->with('roles')->get();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Liste des utilisateurs sauf connecté',
+        'users' => $users
+    ]);
+}
+
 
 
 

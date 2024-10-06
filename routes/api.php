@@ -58,6 +58,9 @@ Route::get('quizzes/{quizze}', [QuizzeController::class, 'show']);
 Route::post('quizzes', [QuizzeController::class, 'store']);
 Route::put('quizzes/{quizze}', [QuizzeController::class, 'update']);
 Route::delete('quizzes/{quizze}', [QuizzeController::class, 'destroy']);
+// récupération des quizes avec leur chapitre 
+Route::get('/admin/quizzes', [QuizzeController::class, 'getQuizzesWithChapters']);
+
 
 // Route::apiResource('quizzes', QuizzeController::class);
 // Route::resource('quizzes',QuizzeController::class);
@@ -158,7 +161,7 @@ Route::post('register',[UserAuthController::class,'register']);
 Route::post('login',[UserAuthController::class,'login']);
 Route::get('logout',[UserAuthController::class,'logout'])
   ->middleware('auth:api');
-
+Route::get('utilisateurs', [UserAuthController::class, 'getAllUsers'])->middleware('auth:api');
 
 
 
