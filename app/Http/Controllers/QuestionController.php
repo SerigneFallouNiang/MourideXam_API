@@ -42,7 +42,6 @@ public function store(StoreQuestionRequest $request)
     // Validation des données de la question et des réponses
     $validatedData = $request->validate([
         'text' => 'required|string',
-        'points' => 'required|integer',
         'answers' => 'required|array', // S'assurer que les réponses sont fournies sous forme de tableau
         'answers.*.text' => 'required|string', // Chaque réponse doit avoir un texte
         'answers.*.correct_one' => 'required|boolean', // Indiquer si la réponse est correcte ou non
@@ -51,7 +50,6 @@ public function store(StoreQuestionRequest $request)
     // Créer la question
     $question = Question::create([
         'text' => $validatedData['text'],
-        'points' => $validatedData['points'],
     ]);
 
     // Gérer les réponses associées
@@ -130,18 +128,16 @@ public function store(StoreQuestionRequest $request)
     {
         // Validation des données de la question et des réponses
         $validatedData = $request->validate([
-            'text' => 'required|string',
-            'points' => 'required|integer',
-            'answers' => 'required|array',
+            'text' => 'sometimes|string',
+            'answers' => 'sometimes|array',
             'answers.*.id' => 'nullable|exists:answers,id', // Pour identifier les réponses existantes
-            'answers.*.text' => 'required|string',
-            'answers.*.correct_one' => 'required|boolean',
+            'answers.*.text' => 'sometimes|string',
+            'answers.*.correct_one' => 'sometimes|boolean',
         ]);
     
         // Mettre à jour la question
         $question->update([
             'text' => $validatedData['text'],
-            'points' => $validatedData['points'],
         ]);
     
         // Gérer les traductions

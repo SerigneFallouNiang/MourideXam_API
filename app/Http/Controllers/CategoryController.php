@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use Illuminate\Http\JsonResponse;
 use App\Services\TranslationService;
 use Illuminate\Support\Facades\File;
 use App\Http\Requests\StoreCategoryRequest;
@@ -201,4 +202,18 @@ class CategoryController extends Controller
 
         return response()->noContent();
     }
+
+  // Nombre toltal des catégories 
+    public function countCategories(): JsonResponse
+{
+    // Compter le nombre total de catégories
+    $count = Category::count();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Total des catégories récupéré avec succès',
+        'count' => $count,
+    ]);
+}
+
 }

@@ -22,18 +22,22 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
 
 // progression d'un user 
+Route::get('/nomber-user', [UserAuthController::class, 'getUserCount'])->middleware('auth:api');
 Route::middleware('auth:api')->get('/user-progress', [UserProgresController::class, 'getUserProgress']);
-
+Route::middleware('auth:api')->put('/update-profile', [UserAuthController::class, 'updateProfile']);
 // Passer un quiz pour un apprenant 
 Route::middleware('auth:api')->group(function () {
+// Dans votre fichier de routes Laravel
+Route::get('/books/read-chapters/user/{userId}', [UserAuthController::class, 'getBooksWithReadChaptersByUser']);
 
-
-  Route::get("profile", [ApiController::class, "profile"]);
-  Route::get("refresh", [ApiController::class, "refreshToken"]);
-  Route::get("logout", [ApiController::class, "logout"]);
+  // Route::get("profile", [ApiController::class, "profile"]);
+  // Route::get("refresh", [ApiController::class, "refreshToken"]);
+  // Route::get("logout", [ApiController::class, "logout"]);
 //gestion profil d'un utilisateur
 Route::put('/user/profile', [RegisteredUserController::class, 'update']);
 });
+
+Route::put('/updateRole/{id}', [UserAuthController::class, 'updateRole'])->middleware('auth:api');
 
 // Question routes
 Route::get('quizzes/{quizId}/questions', [QuestionController::class, 'index']);
@@ -79,6 +83,7 @@ Route::post('/quiz/submit/{quizId}', [QuizzeController::class, 'submitQuiz']);
 // Route::group(['middleware' => ['auth:api']], function() {
 // categories
 // listes des livres par categorie 
+Route::get('/categories/count', [CategoryController::class, 'countCategories']);
 Route::get('categories/{categoryId}/books', [CategoryController::class, 'getBooks']);
 // Route::resource('categories',CategoryController::class);
 Route::delete('categories_mass_destroy', [CategoryController::class, 'massDestroy'])->name('categories.mass_destroy');
@@ -89,10 +94,12 @@ Route::resource('categories', CategoryController::class)
 // });
 
 
+
+
 //livres 
 // récupération de l'historie des livre par rapport à l'utilisateur connecter 
 Route::get('/books/read-chapters/user', [BookController::class, 'getBooksWithReadChaptersByUser']);
-
+Route::get('/books/count', [BookController::class, 'count']);
 Route::apiResource('books', BookController::class)->only('store', 'destroy');
 Route::apiResource('books', BookController::class)->only('index', 'show');
 Route::post('books/{book}', [BookController::class, 'update']);
@@ -140,21 +147,21 @@ Route::post('/register', [UserAuthController::class, 'register']);
 // Route::post('/set-language', [AuthController::class, 'setLanguage']);
 Route::middleware('auth:api')->post('/set-language', [UserAuthController::class, 'setLanguage']);
 
-Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-                ->middleware('guest')
-                ->name('password.email');
+// Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
+//                 ->middleware('guest')
+//                 ->name('password.email');
 
-Route::post('/reset-password', [NewPasswordController::class, 'store'])
-                ->middleware('guest')
-                ->name('password.store');
+// Route::post('/reset-password', [NewPasswordController::class, 'store'])
+//                 ->middleware('guest')
+//                 ->name('password.store');
 
-Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
-                ->middleware(['auth', 'signed', 'throttle:6,1'])
-                ->name('verification.verify');
+// Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
+//                 ->middleware(['auth', 'signed', 'throttle:6,1'])
+//                 ->name('verification.verify');
 
-Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-                ->middleware(['auth', 'throttle:6,1'])
-                ->name('verification.send');
+// Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+//                 ->middleware(['auth', 'throttle:6,1'])
+//                 ->name('verification.send');
 
 
 Route::post('register',[UserAuthController::class,'register']);

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('profil')->nullable();
             $table->integer('progress')->default(0);
             $table->string('telephone')->unique();
             $table->timestamp('email_verified_at')->nullable();

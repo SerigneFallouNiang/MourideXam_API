@@ -110,6 +110,7 @@ class QuizzeController extends Controller
     {
         // Affiche un quiz spécifique avec ses questions
         $quizze->load('questions');
+    
         return response()->json($quizze, 200);
     }
 

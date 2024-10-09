@@ -158,4 +158,10 @@ public function getBooksWithReadChaptersByUser()
     ], 200);
 }
 
+//pour le nombre des livres
+public function count()
+{
+    $count = Book::count(); // Compte le nombre total de livres
+    return response()->json(['message' => 'Nombre total de livres récupéré avec succès', 'count' => $count], 200);
+}
 }

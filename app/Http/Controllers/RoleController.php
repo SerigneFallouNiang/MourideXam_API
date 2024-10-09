@@ -21,7 +21,7 @@ class RoleController extends Controller
     // Liste des rôles avec pagination
     public function index(Request $request)
     {
-        $roles = Role::orderBy('id', 'DESC')->paginate(5);
+        $roles = Role::orderBy('id', 'ASC')->paginate(5);
         return response()->json($roles, 200);
     }
 

@@ -45,10 +45,10 @@ class ChapterController extends Controller
             // Valider la requête
             $validatedData = $request->validate([
                 'title' => 'required|string|max:255',
-                'description' => 'required|string',
-                'video' => 'required|mimes:mp4,avi,mov|max:30000', // 30MB max pour la vidéo
+                'description' => 'nullable|string',
+                'video' => 'nullable|mimes:mp4,avi,mov|max:50000', // 30MB max pour la vidéo
                 'book_id' => 'required|exists:books,id',
-                'pdf' => 'required|mimes:pdf|max:20000', // 20MB max pour le PDF
+                'pdf' => 'nullable|mimes:pdf|max:50000', // 20MB max pour le PDF
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Retourner les erreurs de validation si elles existent
