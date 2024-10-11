@@ -23,6 +23,7 @@ return [
         // env('FRONTEND_URL', 'http://localhost:4200')
         'http://localhost:3000', // gardez cette ligne si vous utilisez aussi cette origine
         'http://localhost:4200', // ajoutez cette ligne pour le frontend Angular
+        '*'
     ],
 
     'allowed_origins_patterns' => [],
