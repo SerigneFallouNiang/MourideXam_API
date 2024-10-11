@@ -99,9 +99,10 @@ public function updateProfile(Request $request): JsonResponse
         'name' => ['sometimes', 'string', 'max:255'],
         'email' => ['sometimes', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
         'telephone' => ['sometimes', 'string', 'max:20'],
+        'locale' => ['sometimes', 'string', 'in:fr,en,ar,wo'], // Validation de la langue
     ]);
 
-    $user->update($request->only(['name', 'email', 'telephone']));
+    $user->update($request->only(['name', 'email', 'telephone', 'locale'])); // Mettre à jour le profil
 
     return response()->json([
         'status' => true,
@@ -109,6 +110,7 @@ public function updateProfile(Request $request): JsonResponse
         'user' => $user
     ]);
 }
+
 
 // récupération des utilisateurs du platforme 
 public function getAllUsers(): JsonResponse

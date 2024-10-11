@@ -24,7 +24,7 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 // progression d'un user 
 Route::get('/nomber-user', [UserAuthController::class, 'getUserCount'])->middleware('auth:api');
 Route::middleware('auth:api')->get('/user-progress', [UserProgresController::class, 'getUserProgress']);
-Route::middleware('auth:api')->put('/update-profile', [UserAuthController::class, 'updateProfile']);
+Route::middleware('auth:api')->post('/update-profile', [UserAuthController::class, 'updateProfile']);
 // Passer un quiz pour un apprenant 
 Route::middleware('auth:api')->group(function () {
 // Dans votre fichier de routes Laravel
