@@ -46,29 +46,36 @@ class ChapterController extends Controller
             $validatedData = $request->validate([
                 'title' => 'required|string|max:255',
                 'description' => 'nullable|string',
-                'video' => 'nullable|mimes:mp4,avi,mov|max:50000', // 30MB max pour la vidéo
+                'video' => 'nullable|mimes:mp4,avi,mov|max:50000', // 50MB max pour la vidéo
                 'book_id' => 'required|exists:books,id',
-                'pdf' => 'nullable|mimes:pdf|max:50000', // 20MB max pour le PDF
+                'pdf' => 'nullable|mimes:pdf|max:50000', // 50MB max pour le PDF
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Retourner les erreurs de validation si elles existent
             return response()->json(['errors' => $e->errors()], 422);
         }
     
-        // Stocker le fichier PDF
-        $pdfPath = $request->file('pdf')->store('public/pdf');
-        $relativePdfPath = 'pdf/' . basename($pdfPath);
+        $relativePdfPath = null;
+        $relativeVideoPath = null;
     
-        // Stocker la vidéo
-        $videoPath = $request->file('video')->store('public/videos');
-        $relativeVideoPath = 'videos/' . basename($videoPath);
+        // Stocker le fichier PDF s'il existe
+        if ($request->hasFile('pdf')) {
+            $pdfPath = $request->file('pdf')->store('public/pdf');
+            $relativePdfPath = 'pdf/' . basename($pdfPath);
+        }
+    
+        // Stocker la vidéo si elle existe
+        if ($request->hasFile('video')) {
+            $videoPath = $request->file('video')->store('public/videos');
+            $relativeVideoPath = 'videos/' . basename($videoPath);
+        }
     
         // Créer l'enregistrement dans la base de données
         $chapter = Chapter::create([
             'title' => $validatedData['title'],
             'description' => $validatedData['description'],
-            'file_path' => $relativePdfPath, // Chemin du PDF
-            'video_path' => $relativeVideoPath, // Chemin de la vidéo
+            'file_path' => $relativePdfPath, // Chemin du PDF (peut être null)
+            'video_path' => $relativeVideoPath, // Chemin de la vidéo (peut être null)
             'book_id' => $validatedData['book_id'],
         ]);
     

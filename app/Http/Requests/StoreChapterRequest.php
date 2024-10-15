@@ -24,6 +24,9 @@ class StoreChapterRequest extends FormRequest
     public function rules(): array
     {
      
+        return [
+            //
+        ];
     }
 
     public function failedValidation(Validator $validator)
