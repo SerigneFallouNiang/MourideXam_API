@@ -49,6 +49,8 @@ Route::delete('questions/{question}', [QuestionController::class, 'destroy']);
 
 // result of the quiz user 
 Route::apiResource('user-quiz-results', UserQuizResultController::class);
+Route::get('/quizzes/{quizId}/results', [QuizzeController::class, 'getQuizResults']);
+
 
 
 //answer

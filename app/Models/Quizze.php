@@ -35,6 +35,7 @@ class Quizze extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class,'quizze_users');
+        return $this->belongsToMany(User::class, 'quizz_user');
+                  
     }
 }
