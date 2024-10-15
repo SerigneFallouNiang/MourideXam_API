@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('categories', function (Bdescriptionlueprint $table) {
+        Schema::table('categories', function (Blueprint $table) {
             $table->dropColumn(['image']);
         });
     }
