@@ -8,8 +8,10 @@ use App\Models\Answer;
 use App\Models\Quizze;
 use App\Models\Chapter;
 use App\Models\Question;
+use App\Models\QuizResult;
 use App\Models\User_progres;
 use Illuminate\Http\Request;
+use App\Models\QuizUserAnswer;
 use App\Services\TranslationService;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreQuizzeRequest;
@@ -243,9 +245,12 @@ public function submitQuiz(Request $request, $quizId)
     $totalQuestions = count($validatedData['answers']);
     $detailedResults = [];
 
+    // Préparer une requête pour récupérer toutes les réponses correctes à l'avance
+    $questions = Question::with('answers')->findMany(collect($validatedData['answers'])->pluck('question_id'));
+
     foreach ($validatedData['answers'] as $answer) {
-        $question = Question::findOrFail($answer['question_id']);
-        $correctAnswer = $question->answers()->where('correct_one', true)->first();
+        $question = $questions->where('id', $answer['question_id'])->first();
+        $correctAnswer = $question->answers->where('correct_one', true)->first();
         $allAnswers = $question->answers;
 
         $isCorrect = $correctAnswer && $correctAnswer->id == $answer['answer_id'];
@@ -274,21 +279,23 @@ public function submitQuiz(Request $request, $quizId)
     $isPassed = $score >= 70;  // Note de passage à 70%
 
     // Mise à jour ou création du progrès de l'utilisateur pour ce chapitre
-    $userProgress = User_progres::updateOrCreate(
+    $userProgress = QuizResult::updateOrCreate(
         [
-            'user_id' => $user->id, 
-            'chapter_id' => $quiz->chapter_id
-        ], 
+            'user_id' => $user->id,
+            'quiz_id' => $quizId,
+        ],
         [
-            'is_completed' => $isPassed,
-            'terminer' => $isPassed ? '1' : '2'  // 1 pour réussi, 2 pour échoué
+            'terminer' => $isPassed ? '1' : '2',
+            'score' => $score,
+            'answers' => json_encode($detailedResults),  // Ajout des réponses détaillées
+            'is_passed' => $isPassed,
         ]
     );
 
     // Envoyer des notifications si nécessaire
     if ($isPassed) {
         $user->notify(new QuizPassedNotification($user, $quiz, $correctAnswers, $score));
-        
+
         $admin = User::role('admin')->first();
         if ($admin) {
             $admin->notify(new QuizPassedNotification($user, $quiz, $correctAnswers, $score));
@@ -305,6 +312,68 @@ public function submitQuiz(Request $request, $quizId)
         'totalQuestions' => $totalQuestions,  // Nombre total de questions
         'isPassed' => $isPassed,  // Statut de passage ou échec
         'detailedResults' => $detailedResults,  // Détails des réponses
+    ]);
+}
+
+
+
+public function showPassedQuiz($quizId)
+{
+    $user = Auth::user();
+
+    // Vérifier si l'utilisateur est authentifié
+    if (!$user) {
+        return response()->json([
+            'message' => $this->translationService->translate('Utilisateur non authentifié', $user->locale),
+        ], 401);
+    }
+
+    // Récupérer les résultats du quiz passé
+    $quizResult = QuizResult::where('user_id', $user->id)
+                            ->where('quiz_id', $quizId)
+                            ->first();
+
+    // Vérifier si l'utilisateur a déjà passé ce quiz
+    if (!$quizResult) {
+        return response()->json([
+            'message' => $this->translationService->translate('Aucun résultat trouvé pour ce quiz', $user->locale),
+        ], 404);
+    }
+
+    // Récupérer les réponses données par l'utilisateur à partir de la table quiz_user_answers
+    $userAnswers = QuizUserAnswer::where('quiz_result_id', $quizResult->id)->get();
+
+    $detailedResults = [];
+
+    foreach ($userAnswers as $userAnswer) {
+        $question = Question::findOrFail($userAnswer->question_id);
+        $correctAnswer = $question->answers()->where('correct_one', true)->first();
+        $allAnswers = $question->answers;
+
+        $detailedResults[] = [
+            'question' => [
+                'id' => $question->id,
+                'text' => $this->translationService->translate($question->text, $user->locale),  // Traduction de la question
+            ],
+            'answers' => $allAnswers->map(function ($ans) use ($correctAnswer, $userAnswer, $user) {
+                return [
+                    'id' => $ans->id,
+                    'text' => $this->translationService->translate($ans->text, $user->locale),  // Traduction des réponses
+                    'is_correct' => $ans->id === $correctAnswer->id,
+                    'user_selected' => $ans->id === $userAnswer->answer_id,
+                ];
+            }),
+            'is_correct' => $correctAnswer && $correctAnswer->id == $userAnswer->answer_id,
+        ];
+    }
+
+    // Retourner les résultats détaillés avec les questions et les réponses sélectionnées
+    return response()->json([
+        'message' => $this->translationService->translate('Résultats du quiz', $user->locale),
+        'quiz_id' => $quizResult->quiz_id,
+        'score' => $quizResult->score,
+        'is_passed' => $quizResult->is_passed,
+        'detailedResults' => $detailedResults,
     ]);
 }
 
