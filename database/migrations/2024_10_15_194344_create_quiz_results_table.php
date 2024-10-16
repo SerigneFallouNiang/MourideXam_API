@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('terminer')->default(0);
             $table->integer('score')->nullable();
             $table->boolean('is_passed')->default(false);
+            $table->json('answers')->nullable();
             $table->timestamps();
         });
     }

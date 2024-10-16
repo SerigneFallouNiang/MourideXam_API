@@ -12,6 +12,9 @@ class QuizResult extends Model
     protected $guarded = [];
 
 
+    protected $casts = [
+        'answers' => 'json',
+    ];
 
 
     public function user()

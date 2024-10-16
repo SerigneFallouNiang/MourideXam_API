@@ -287,7 +287,7 @@ public function submitQuiz(Request $request, $quizId)
         [
             'terminer' => $isPassed ? '1' : '2',
             'score' => $score,
-            'answers' => json_encode($detailedResults),  // Ajout des réponses détaillées
+            'answers' => json_encode($detailedResults),  
             'is_passed' => $isPassed,
         ]
     );
@@ -316,7 +316,6 @@ public function submitQuiz(Request $request, $quizId)
 }
 
 
-
 public function showPassedQuiz($quizId)
 {
     $user = Auth::user();
@@ -340,30 +339,26 @@ public function showPassedQuiz($quizId)
         ], 404);
     }
 
-    // Récupérer les réponses données par l'utilisateur à partir de la table quiz_user_answers
-    $userAnswers = QuizUserAnswer::where('quiz_result_id', $quizResult->id)->get();
+    // Décoder les réponses stockées en JSON
+    $userAnswers = json_decode($quizResult->answers, true);
 
     $detailedResults = [];
 
-    foreach ($userAnswers as $userAnswer) {
-        $question = Question::findOrFail($userAnswer->question_id);
-        $correctAnswer = $question->answers()->where('correct_one', true)->first();
-        $allAnswers = $question->answers;
-
+    foreach ($userAnswers as $answer) {
         $detailedResults[] = [
             'question' => [
-                'id' => $question->id,
-                'text' => $this->translationService->translate($question->text, $user->locale),  // Traduction de la question
+                'id' => $answer['question']['id'],
+                'text' => $this->translationService->translate($answer['question']['text'], $user->locale),
             ],
-            'answers' => $allAnswers->map(function ($ans) use ($correctAnswer, $userAnswer, $user) {
+            'answers' => collect($answer['answers'])->map(function ($ans) use ($user) {
                 return [
-                    'id' => $ans->id,
-                    'text' => $this->translationService->translate($ans->text, $user->locale),  // Traduction des réponses
-                    'is_correct' => $ans->id === $correctAnswer->id,
-                    'user_selected' => $ans->id === $userAnswer->answer_id,
+                    'id' => $ans['id'],
+                    'text' => $this->translationService->translate($ans['text'], $user->locale),
+                    'is_correct' => $ans['is_correct'],
+                    'user_selected' => $ans['user_selected'],
                 ];
             }),
-            'is_correct' => $correctAnswer && $correctAnswer->id == $userAnswer->answer_id,
+            'is_correct' => $answer['is_correct'],
         ];
     }
 
