@@ -209,11 +209,73 @@ public function markAsRead($chapterId)
     
   
 
-    public function getChapterEtatByUser($bookId)
+//     public function getChapterEtatByUser($bookId)
+// {
+//     // Récupérer l'utilisateur authentifié
+//     $user = Auth::user();
+
+//     // Récupérer le livre correspondant à l'ID
+//     $book = Book::find($bookId);
+//     if (!$book) {
+//         return response()->json([
+//             'message' => 'Livre non trouvé',
+//         ], 404);
+//     }
+
+//     // Vérifier la locale de l'utilisateur
+//     $locale = $user ? $user->locale : config('app.locale');
+
+//     // Si l'utilisateur n'est pas authentifié, retourner tous les chapitres sans état
+//     if (!$user) {
+//         $chapters = Chapter::where('book_id', $bookId)->get();
+//         return response()->json([
+//             'message' => 'Liste des chapitres',
+//             'Chapitres' => $chapters->map(function ($chapter) use ($locale) {
+//                 return [
+//                     'id' => $chapter->id,
+//                     'Titre du chapitre' => $this->translationService->translate($chapter->title, $locale),
+//                     'Lien' => $chapter->lien,
+//                     'Description' => $this->translationService->translate($chapter->description, $locale),
+//                     'Fichier' => $chapter->file_path,
+//                     'Video' => $chapter->video_path,
+//                     'lue' => false,
+//                     'terminer' => false,
+//                 ];
+//             })
+//         ], 200);
+//     }
+
+//     // Récupérer les chapitres avec la progression de l'utilisateur
+//     $chapters = Chapter::with(['userProgress' => function($query) use ($user) {
+//         $query->where('user_id', $user->id);
+//     }])->where('book_id', $bookId)->get();
+    
+//     // Formater la réponse avec l'état de lecture de l'utilisateur
+//     return response()->json([
+//         'message' => 'Chapitres récupérés avec succès',
+//         'Livre' => $this->translationService->translate($book->title, $locale),
+//         'Chapitres' => $chapters->map(function ($chapter) use ($locale) {
+//             return [
+//                 'id' => $chapter->id,
+//                 'Titre du chapitre' => $this->translationService->translate($chapter->title, $locale),
+//                 'Lien' => $chapter->lien,
+//                 'Description' => $this->translationService->translate($chapter->description, $locale),
+//                 'Fichier' => $chapter->file_path,
+//                 'Video' => $chapter->video_path,
+//                 // Ajouter l'état "lu" et "terminer" selon la progression de l'utilisateur
+//                 'lue' => $chapter->userProgress->isNotEmpty() && $chapter->userProgress[0]->lu,
+//                 'terminer' => $chapter->userProgress->isNotEmpty() && $chapter->userProgress[0]->terminer,
+//             ];
+//         })
+//     ], 200);
+// }
+
+
+public function getChapterEtatByUser($bookId)
 {
     // Récupérer l'utilisateur authentifié
     $user = Auth::user();
-
+    
     // Récupérer le livre correspondant à l'ID
     $book = Book::find($bookId);
     if (!$book) {
@@ -221,10 +283,10 @@ public function markAsRead($chapterId)
             'message' => 'Livre non trouvé',
         ], 404);
     }
-
+    
     // Vérifier la locale de l'utilisateur
     $locale = $user ? $user->locale : config('app.locale');
-
+    
     // Si l'utilisateur n'est pas authentifié, retourner tous les chapitres sans état
     if (!$user) {
         $chapters = Chapter::where('book_id', $bookId)->get();
@@ -244,17 +306,30 @@ public function markAsRead($chapterId)
             })
         ], 200);
     }
-
-    // Récupérer les chapitres avec la progression de l'utilisateur
-    $chapters = Chapter::with(['userProgress' => function($query) use ($user) {
-        $query->where('user_id', $user->id);
+    
+    // Récupérer les chapitres avec le quiz et les résultats de quiz de l'utilisateur
+    $chapters = Chapter::with(['quiz' => function($query) use ($user) {
+        $query->with(['quizResults' => function($subQuery) use ($user) {
+            $subQuery->where('user_id', $user->id);
+        }]);
     }])->where('book_id', $bookId)->get();
     
-    // Formater la réponse avec l'état de lecture de l'utilisateur
+    // Récupérer la progression de l'utilisateur
+    $userProgress = User_progres::where('user_id', $user->id)
+                                ->whereIn('chapter_id', $chapters->pluck('id'))
+                                ->get()
+                                ->keyBy('chapter_id');
+    
+    // Formater la réponse avec l'état de lecture de l'utilisateur et les résultats des quiz
     return response()->json([
         'message' => 'Chapitres récupérés avec succès',
         'Livre' => $this->translationService->translate($book->title, $locale),
-        'Chapitres' => $chapters->map(function ($chapter) use ($locale) {
+        'Chapitres' => $chapters->map(function ($chapter) use ($locale, $userProgress) {
+            $chapterProgress = $userProgress->get($chapter->id);
+            $quizResult = $chapter->quiz && $chapter->quiz->quizResults->isNotEmpty() 
+                        ? $chapter->quiz->quizResults->first() 
+                        : null;
+            
             return [
                 'id' => $chapter->id,
                 'Titre du chapitre' => $this->translationService->translate($chapter->title, $locale),
@@ -262,13 +337,15 @@ public function markAsRead($chapterId)
                 'Description' => $this->translationService->translate($chapter->description, $locale),
                 'Fichier' => $chapter->file_path,
                 'Video' => $chapter->video_path,
-                // Ajouter l'état "lu" et "terminer" selon la progression de l'utilisateur
+                // 'lue' => $chapterProgress ? $chapterProgress->is_completed : false,
+                // 'terminer' => $quizResult ? ($quizResult->terminer === '1') : false,
                 'lue' => $chapter->userProgress->isNotEmpty() && $chapter->userProgress[0]->lu,
-                'terminer' => $chapter->userProgress->isNotEmpty() && $chapter->userProgress[0]->terminer,
+               'terminer' => $quizResult->terminer,
+                'score' => $quizResult ? $quizResult->score : null,
+                'is_passed' => $quizResult ? $quizResult->is_passed : false,
             ];
         })
     ], 200);
 }
-
 
 }
