@@ -337,10 +337,8 @@ public function getChapterEtatByUser($bookId)
                 'Description' => $this->translationService->translate($chapter->description, $locale),
                 'Fichier' => $chapter->file_path,
                 'Video' => $chapter->video_path,
-                // 'lue' => $chapterProgress ? $chapterProgress->is_completed : false,
-                // 'terminer' => $quizResult ? ($quizResult->terminer === '1') : false,
-                'lue' => $chapter->userProgress->isNotEmpty() && $chapter->userProgress[0]->lu,
-               'terminer' => $quizResult->terminer,
+                'lue' => $chapterProgress ? $chapterProgress->lu : false,
+               'terminer' => $quizResult ? $quizResult->terminer : false,
                 'score' => $quizResult ? $quizResult->score : null,
                 'is_passed' => $quizResult ? $quizResult->is_passed : false,
             ];
