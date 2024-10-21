@@ -81,6 +81,12 @@ class User extends Authenticatable implements  JWTSubject
         return $this->hasMany(User_quiz_result::class);
     }
 
+    public function quizzes()
+    {
+        return $this->belongsToMany(Quizze::class, 'quizz_user');
+                    
+    }
+
      
  
 }

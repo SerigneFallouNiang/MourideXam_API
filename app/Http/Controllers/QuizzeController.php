@@ -8,8 +8,10 @@ use App\Models\Answer;
 use App\Models\Quizze;
 use App\Models\Chapter;
 use App\Models\Question;
+use App\Models\QuizResult;
 use App\Models\User_progres;
 use Illuminate\Http\Request;
+use App\Models\QuizUserAnswer;
 use App\Services\TranslationService;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreQuizzeRequest;
@@ -208,6 +210,9 @@ class QuizzeController extends Controller
     ]);
 }
 
+
+
+
 //récupération des quizs avec leurs chapitres
 public function getQuizzesWithChapters()
 {
@@ -221,6 +226,12 @@ public function getQuizzesWithChapters()
 
 
 
+
+
+
+
+
+//pour faire un quiz
 public function submitQuiz(Request $request, $quizId)
 {
     $quiz = Quizze::findOrFail($quizId);
@@ -229,8 +240,21 @@ public function submitQuiz(Request $request, $quizId)
     // Vérifiez si l'utilisateur est authentifié
     if (!$user) {
         return response()->json([
-            'message' => $this->translationService->translate('Utilisateur non authentifié', $user->locale),  // Traduction
+            'message' => $this->translationService->translate('Utilisateur non authentifié', $user->locale),
         ], 401);
+    }
+
+    // Vérifier si l'utilisateur a déjà passé ce quiz dans les dernières 24 heures
+    $lastAttempt = QuizResult::where('user_id', $user->id)
+                             ->where('quiz_id', $quizId)
+                             ->latest()
+                             ->first();
+
+    if ($lastAttempt && $lastAttempt->created_at->addHours(24) > now()) {
+        $timeLeft = $lastAttempt->created_at->addHours(24)->diffForHumans(now());
+        return response()->json([
+            'message' => $this->translationService->translate("Vous devez attendre encore {$timeLeft} avant de pouvoir repasser ce quiz.", $user->locale),
+        ], 403);
     }
 
     $validatedData = $request->validate([
@@ -243,9 +267,12 @@ public function submitQuiz(Request $request, $quizId)
     $totalQuestions = count($validatedData['answers']);
     $detailedResults = [];
 
+    // Préparer une requête pour récupérer toutes les réponses correctes à l'avance
+    $questions = Question::with('answers')->findMany(collect($validatedData['answers'])->pluck('question_id'));
+
     foreach ($validatedData['answers'] as $answer) {
-        $question = Question::findOrFail($answer['question_id']);
-        $correctAnswer = $question->answers()->where('correct_one', true)->first();
+        $question = $questions->where('id', $answer['question_id'])->first();
+        $correctAnswer = $question->answers->where('correct_one', true)->first();
         $allAnswers = $question->answers;
 
         $isCorrect = $correctAnswer && $correctAnswer->id == $answer['answer_id'];
@@ -256,12 +283,12 @@ public function submitQuiz(Request $request, $quizId)
         $detailedResults[] = [
             'question' => [
                 'id' => $question->id,
-                'text' => $this->translationService->translate($question->text, $user->locale),  // Traduction de la question
+                'text' => $this->translationService->translate($question->text, $user->locale),
             ],
             'answers' => $allAnswers->map(function ($ans) use ($correctAnswer, $answer, $user) {
                 return [
                     'id' => $ans->id,
-                    'text' => $this->translationService->translate($ans->text, $user->locale),  // Traduction des réponses
+                    'text' => $this->translationService->translate($ans->text, $user->locale),
                     'is_correct' => $ans->id === $correctAnswer->id,
                     'user_selected' => $ans->id === $answer['answer_id'],
                 ];
@@ -273,22 +300,20 @@ public function submitQuiz(Request $request, $quizId)
     $score = ($correctAnswers / $totalQuestions) * 100;
     $isPassed = $score >= 70;  // Note de passage à 70%
 
-    // Mise à jour ou création du progrès de l'utilisateur pour ce chapitre
-    $userProgress = User_progres::updateOrCreate(
-        [
-            'user_id' => $user->id, 
-            'chapter_id' => $quiz->chapter_id
-        ], 
-        [
-            'is_completed' => $isPassed,
-            'terminer' => $isPassed ? '1' : '2'  // 1 pour réussi, 2 pour échoué
-        ]
-    );
+    // Créer un nouveau résultat de quiz
+    $quizResult = QuizResult::create([
+        'user_id' => $user->id,
+        'quiz_id' => $quizId,
+        'terminer' => $isPassed ? '1' : '2',
+        'score' => $score,
+        'answers' => json_encode($detailedResults),
+        'is_passed' => $isPassed,
+    ]);
 
     // Envoyer des notifications si nécessaire
     if ($isPassed) {
         $user->notify(new QuizPassedNotification($user, $quiz, $correctAnswers, $score));
-        
+
         $admin = User::role('admin')->first();
         if ($admin) {
             $admin->notify(new QuizPassedNotification($user, $quiz, $correctAnswers, $score));
@@ -297,14 +322,73 @@ public function submitQuiz(Request $request, $quizId)
 
     // Retourner une réponse JSON avec les résultats, incluant les traductions
     return response()->json([
-        'message' => $this->translationService->translate('Quiz terminé', $user->locale),  // Traduction du message
-        'user_id' => $user->id,  // ID de l'utilisateur pour traçabilité
-        'chapter_id' => $quiz->chapter_id,  // ID du chapitre
-        'score' => $score,  // Score obtenu
-        'correctAnswers' => $correctAnswers,  // Nombre de réponses correctes
-        'totalQuestions' => $totalQuestions,  // Nombre total de questions
-        'isPassed' => $isPassed,  // Statut de passage ou échec
-        'detailedResults' => $detailedResults,  // Détails des réponses
+        'message' => $this->translationService->translate('Quiz terminé', $user->locale),
+        'user_id' => $user->id,
+        'chapter_id' => $quiz->chapter_id,
+        'score' => $score,
+        'correctAnswers' => $correctAnswers,
+        'totalQuestions' => $totalQuestions,
+        'isPassed' => $isPassed,
+        'detailedResults' => $detailedResults,
+    ]);
+}
+
+
+
+//pour récupérer les information d'un quiz déja passer
+public function showPassedQuiz($quizId)
+{
+    $user = Auth::user();
+
+    // Vérifier si l'utilisateur est authentifié
+    if (!$user) {
+        return response()->json([
+            'message' => $this->translationService->translate('Utilisateur non authentifié', $user->locale),
+        ], 401);
+    }
+
+    // Récupérer les résultats du quiz passé
+    $quizResult = QuizResult::where('user_id', $user->id)
+                            ->where('quiz_id', $quizId)
+                            ->first();
+
+    // Vérifier si l'utilisateur a déjà passé ce quiz
+    if (!$quizResult) {
+        return response()->json([
+            'message' => $this->translationService->translate('Aucun résultat trouvé pour ce quiz', $user->locale),
+        ], 404);
+    }
+
+    // Décoder les réponses stockées en JSON
+    $userAnswers = json_decode($quizResult->answers, true);
+
+    $detailedResults = [];
+
+    foreach ($userAnswers as $answer) {
+        $detailedResults[] = [
+            'question' => [
+                'id' => $answer['question']['id'],
+                'text' => $this->translationService->translate($answer['question']['text'], $user->locale),
+            ],
+            'answers' => collect($answer['answers'])->map(function ($ans) use ($user) {
+                return [
+                    'id' => $ans['id'],
+                    'text' => $this->translationService->translate($ans['text'], $user->locale),
+                    'is_correct' => $ans['is_correct'],
+                    'user_selected' => $ans['user_selected'],
+                ];
+            }),
+            'is_correct' => $answer['is_correct'],
+        ];
+    }
+
+    // Retourner les résultats détaillés avec les questions et les réponses sélectionnées
+    return response()->json([
+        'message' => $this->translationService->translate('Résultats du quiz', $user->locale),
+        'quiz_id' => $quizResult->quiz_id,
+        'score' => $quizResult->score,
+        'is_passed' => $quizResult->is_passed,
+        'detailedResults' => $detailedResults,
     ]);
 }
 

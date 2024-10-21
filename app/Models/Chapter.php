@@ -20,25 +20,25 @@ class Chapter extends Model  implements HasMedia
     ];
 
 
-      // Méthode pour ajouter une vidéo au chapitre
-      public function addVideo($file)
-      {
-          $this->addMedia($file)
-               ->toMediaCollection('videos');
-      }
+    //   // Méthode pour ajouter une vidéo au chapitre
+    //   public function addVideo($file)
+    //   {
+    //       $this->addMedia($file)
+    //            ->toMediaCollection('videos');
+    //   }
   
-      // Méthode pour récupérer les vidéos du chapitre
-      public function videos()
-      {
-          return $this->getMedia('videos');
-      }
+    //   // Méthode pour récupérer les vidéos du chapitre
+    //   public function videos()
+    //   {
+    //       return $this->getMedia('videos');
+    //   }
 
 
        // Méthode pour définir la relation avec les vidéos
-    public function relationvideos()
-    {
-        return $this->media()->where('collection_name', 'videos');
-    }
+    // public function relationvideos()
+    // {
+    //     return $this->media()->where('collection_name', 'videos');
+    // }
 
 
 

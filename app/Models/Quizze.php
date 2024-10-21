@@ -32,4 +32,16 @@ class Quizze extends Model
         return $this->belongsToMany(Question::class,'quizze_question');
     }
 
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'quizz_user');
+                  
+    }
+
+        // Ajout de la relation quizResults
+        public function quizResults()
+        {
+            return $this->hasMany(QuizResult::class, 'quiz_id');
+        }
 }

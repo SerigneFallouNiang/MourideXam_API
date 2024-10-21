@@ -23,6 +23,7 @@ class StoreChapterRequest extends FormRequest
      */
     public function rules(): array
     {
+     
         return [
             //
         ];
