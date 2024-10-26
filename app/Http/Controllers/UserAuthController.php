@@ -200,21 +200,37 @@ public function refreshToken(){
 }
 
 //modification des roles 
+// public function updateRole(Request $request, $id)
+// {
+//     $request->validate([
+//         'roleIdname' => 'required|exists:roles,id',
+//     ]);
+
+//     $user = User::findOrFail($id);
+    
+//     // Synchroniser le nouveau rôle
+//     $user->syncRoles([$request->roleId]);
+
+//     return response()->json([
+//         'success' => true,
+//         'message' => 'Role updated successfully',
+//         'user' => $user->load('roles') // Charger les rôles mis à jour
+//     ]);
+// }
+
 public function updateRole(Request $request, $id)
 {
     $request->validate([
-        'roleIdname' => 'required|exists:roles,id',
+        'roleId' => 'required|exists:roles,id',  // Changé de 'roleIdname' à 'roleId'
     ]);
-
-    $user = User::findOrFail($id);
     
-    // Synchroniser le nouveau rôle
-    $user->syncRoles([$request->roleId]);
-
+    $user = User::findOrFail($id);
+    $user->syncRoles([$request->roleId]);  // Maintenant ça correspond
+    
     return response()->json([
         'success' => true,
         'message' => 'Role updated successfully',
-        'user' => $user->load('roles') // Charger les rôles mis à jour
+        'user' => $user->load('roles')
     ]);
 }
 
