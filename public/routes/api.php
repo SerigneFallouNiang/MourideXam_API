@@ -52,9 +52,6 @@ Route::apiResource('user-quiz-results', UserQuizResultController::class);
 Route::get('/quizzes/{quizId}/results', [QuizzeController::class, 'getQuizResults']);
 Route::middleware('auth:api')->get('/quiz/passed/{quizId}', [QuizzeController::class, 'showPassedQuiz']);
 
-Route::get('/quizzes/{quizId}/last-attempt', [QuizzeController::class, 'checkLastAttempt']);
-
-
 
 //answer
 Route::apiResource('answers', AnswerController::class);
