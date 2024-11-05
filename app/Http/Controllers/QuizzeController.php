@@ -350,6 +350,7 @@ public function showPassedQuiz($quizId)
     // Récupérer les résultats du quiz passé
     $quizResult = QuizResult::where('user_id', $user->id)
                             ->where('quiz_id', $quizId)
+                            ->latest()
                             ->first();
 
     // Vérifier si l'utilisateur a déjà passé ce quiz
@@ -392,38 +393,36 @@ public function showPassedQuiz($quizId)
     ]);
 }
 
-
-
-// pour la disponibilité du quiz 
-public function getLastAttempt($quizId)
+//pour la disponiblité du quiz
+public function checkLastAttempt($quizId)
 {
-    $quiz = Quizze::findOrFail($quizId);
     $user = Auth::user();
 
-    // Vérifiez si l'utilisateur est authentifié
     if (!$user) {
         return response()->json([
             'message' => $this->translationService->translate('Utilisateur non authentifié', $user->locale),
         ], 401);
     }
 
-    // Vérifier si l'utilisateur a déjà passé ce quiz dans les dernières 24 heures
     $lastAttempt = QuizResult::where('user_id', $user->id)
-                             ->where('quiz_id', $quizId)
-                             ->latest()
-                             ->first();
+        ->where('quiz_id', $quizId)
+        ->latest()
+        ->first();
 
     if ($lastAttempt && $lastAttempt->created_at->addHours(24) > now()) {
+        // L'utilisateur doit encore attendre
         $timeLeft = $lastAttempt->created_at->addHours(24)->diffForHumans(now());
         return response()->json([
+            'canRetake' => false,
+            'timeLeft' => $timeLeft,
             'message' => $this->translationService->translate("Vous devez attendre encore {$timeLeft} avant de pouvoir repasser ce quiz.", $user->locale),
-        ], 403);
+        ]);
     }
 
-    // return response()->json([
-    //     'message' => $this->translationService->translate("Le quiz est disponible.", $user->locale),
-    // ], 200);
+    // L'utilisateur peut reprendre le quiz
+    return response()->json([
+        'canRetake' => true,
+        'message' => $this->translationService->translate("Vous pouvez passer le quiz maintenant.", $user->locale),
+    ]);
 }
-
-
 }

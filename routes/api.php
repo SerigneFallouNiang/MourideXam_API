@@ -51,8 +51,9 @@ Route::delete('questions/{question}', [QuestionController::class, 'destroy']);
 Route::apiResource('user-quiz-results', UserQuizResultController::class);
 Route::get('/quizzes/{quizId}/results', [QuizzeController::class, 'getQuizResults']);
 Route::middleware('auth:api')->get('/quiz/passed/{quizId}', [QuizzeController::class, 'showPassedQuiz']);
-//pour la dispniblité du quiz 
-Route::get('/quizzes/{quizId}/last-attempt', [QuizzeController::class, 'getLastAttempt']);
+
+Route::get('/quizzes/{quizId}/last-attempt', [QuizzeController::class, 'checkLastAttempt']);
+
 
 
 //answer
