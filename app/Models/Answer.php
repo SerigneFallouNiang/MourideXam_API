@@ -11,6 +11,11 @@ class Answer extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        'translations' => 'array',
+    ];
+
+
     public function question()
     {
         return $this->belongsTo(Question::class);

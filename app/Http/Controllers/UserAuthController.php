@@ -234,6 +234,8 @@ public function updateRole(Request $request, $id)
     ]);
 }
 
+
+
 //pour voir l'history d'un utilisateur
 public function getBooksWithReadChaptersByUser($userId)
 {
@@ -244,15 +246,52 @@ public function getBooksWithReadChaptersByUser($userId)
             'message' => 'Utilisateur non trouvé',
         ], 404);
     }
-
-    $books = Book::whereHas('chapters.userProgress', function ($query) use ($userId) {
+    // Récupérer tous les livres qui ont au moins un chapitre avec un quiz terminé par cet utilisateur
+    $books = Book::whereHas('chapters.quiz.quizResults', function ($query) use ($userId) {
         $query->where('user_id', $userId)
-              ->whereIn('terminer', [1, 2]);
-    })->get();
+              ->whereIn('terminer', [1, 2]); // Condition pour les quiz terminés ou lus par cet utilisateur
+    })->with(['chapters.quiz' => function ($query) use ($userId) {
+        // Charger les résultats de quiz pour calculer le pourcentage de progression
+        $query->withCount(['quizResults as completed_count' => function ($query) use ($userId) {
+            $query->where('user_id',$userId)
+                  ->where('terminer', 1); // Seulement les quiz terminés
+        }]);
+    }])->get();
 
+    // Si aucun livre n'est trouvé
+    if ($books->isEmpty()) {
+        return response()->json([
+            'message' => 'Aucun livre avec des chapitres terminés trouvé pour cet utilisateur',
+            'books' => []
+        ], 200);
+    }
+
+    // Préparer les livres avec le pourcentage de progression
+    $booksWithProgress = $books->map(function ($book) {
+        $totalChapters = $book->chapters->count(); // Nombre total de chapitres
+        $completedChapters = $book->chapters->sum('quiz.completed_count'); // Nombre de chapitres/quiz terminés
+        $progress = $totalChapters > 0 ? round(($completedChapters / $totalChapters) * 100, 2) : 0; // Calcul du pourcentage
+
+       
+        return [
+            'id' => $book->id,
+            'title' => $book->title,
+            'image' => $book->image,
+            'description' => $book->description,
+            'category_id' => $book->category_id,
+            'created_at' => $book->created_at,
+            'updated_at' => $book->updated_at,
+            'translations' => $book->translations, // Assurez-vous que le champ `translations` est bien défini
+            'total_chapters' => $totalChapters,
+            'completed_chapters' => $completedChapters,
+            'progress' => $progress // Pourcentage de progression
+        ];
+    });
+
+    // Retourner les livres avec le pourcentage de progression
     return response()->json([
-        'message' => 'Historique récupéré avec succès',
-        'books' => $books
+        'message' => 'Livres avec progression des chapitres terminés récupérés avec succès pour l\'utilisateur',
+        'books' => $booksWithProgress
     ], 200);
 }
 }

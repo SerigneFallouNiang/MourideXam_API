@@ -293,11 +293,12 @@ public function getChapterEtatByUser($bookId)
         return response()->json([
             'message' => 'Liste des chapitres',
             'Chapitres' => $chapters->map(function ($chapter) use ($locale) {
+                $translations = $chapter->translations;
                 return [
                     'id' => $chapter->id,
-                    'Titre du chapitre' => $this->translationService->translate($chapter->title, $locale),
+                    'Titre du chapitre' => $translations[$locale]['title'] ?? $chapter->title,
                     'Lien' => $chapter->lien,
-                    'Description' => $this->translationService->translate($chapter->description, $locale),
+                    'Description' => $translations[$locale]['description'] ?? $chapter->description,
                     'Fichier' => $chapter->file_path,
                     'Video' => $chapter->video_path,
                     'lue' => false,
@@ -330,20 +331,23 @@ public function getChapterEtatByUser($bookId)
                         ? $chapter->quiz->quizResults->first() 
                         : null;
             
+            $translations = $chapter->translations;
+            
             return [
                 'id' => $chapter->id,
-                'Titre du chapitre' => $this->translationService->translate($chapter->title, $locale),
+                'Titre du chapitre' => $translations[$locale]['title'] ?? $this->translationService->translate($chapter->title, $locale),
                 'Lien' => $chapter->lien,
-                'Description' => $this->translationService->translate($chapter->description, $locale),
+                'Description' => $translations[$locale]['description'] ?? $this->translationService->translate($chapter->description, $locale),
                 'Fichier' => $chapter->file_path,
                 'Video' => $chapter->video_path,
                 'lue' => $chapterProgress ? $chapterProgress->lu : false,
-               'terminer' => $quizResult ? $quizResult->terminer : false,
+                'terminer' => $quizResult ? $quizResult->terminer : false,
                 'score' => $quizResult ? $quizResult->score : null,
                 'is_passed' => $quizResult ? $quizResult->is_passed : false,
             ];
         })
     ], 200);
 }
+
 
 }

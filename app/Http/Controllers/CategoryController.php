@@ -21,70 +21,102 @@ class CategoryController extends Controller
     }
     
 
- 
-
     public function index()
-    {
-
-          // Récupérer la langue choisie par l'utilisateur ou utiliser la locale par défaut
-          $locale = app()->getLocale();
-        // $categories = Category::all();
-
-        // dd('cherche de traduction',$locale);
-
-         // Vérifiez si la langue est prise en charge
-        if (!in_array($locale, $this->translationService->getSupportedLanguages())) {
-            return response()->json(['message' => 'Langue non supportée'], 400);
-        }
-
-        $categories = Category::all()->map(function ($categorie) use ($locale) {
-            return [
-                'id' => $categorie->id,
-                // Utiliser le service de traduction pour traduire les champs
-                'name' => $this->translationService->translate($categorie->name, $locale),
-                'description' => $this->translationService->translate($categorie->description, $locale),
-                'image' =>$categorie->image,
-            ];
-        });
-
-        return response()->json(['message' => 'Liste des catégories', 'Catégorie' => $categories], 201);
-    }
-
-
-    public function getBooks($categoryId)
     {
         // Récupérer la langue choisie par l'utilisateur ou utiliser la locale par défaut
         $locale = app()->getLocale();
     
-        // Vérifiez si la langue est prise en charge
-        if (!in_array($locale, $this->translationService->getSupportedLanguages())) {
-            return response()->json(['message' => 'Langue non supportée'], 400);
-        }
+        $categories = Category::all()->map(function ($category) use ($locale) {
+            // Récupérer les traductions du champ translations
+            $translations = $category->translations;
     
-        // Récupérer la catégorie par ID, ou échouer si elle n'existe pas
-        $category = Category::findOrFail($categoryId);
-    
-        // Récupérer les livres de la catégorie
-        $books = $category->books->map(function ($book) use ($locale) {
             return [
-                'id' => $book->id,
-                'title' => $this->translationService->translate($book->title, $locale),
-                'description' => $this->translationService->translate($book->description, $locale),
-                'image' =>$book->image,
+                'id' => $category->id,
+                // Si une traduction est disponible pour la langue choisie, l'utiliser, sinon utiliser la valeur par défaut
+                'name' => $translations[$locale]['name'] ?? $category->name,
+                'description' => $translations[$locale]['description'] ?? $category->description,
+                'image' => $category->image,
             ];
         });
     
-        // Traduire le nom de la catégorie
-        $translatedCategory = $this->translationService->translate($category->name, $locale);
-    
-        return response()->json([
-            'message' => 'Livres de la catégorie ' . $translatedCategory,
-            'category' => $translatedCategory,
-            'books' => $books,
-        ], 200);
+        return response()->json(['message' => 'Liste des catégories', 'Catégorie' => $categories], 201);
     }
+
+
+
+    // public function getBooks($categoryId)
+    // {
+    //     // Récupérer la langue choisie par l'utilisateur ou utiliser la locale par défaut
+    //     $locale = app()->getLocale();
     
+    //     // Vérifiez si la langue est prise en charge
+    //     if (!in_array($locale, $this->translationService->getSupportedLanguages())) {
+    //         return response()->json(['message' => 'Langue non supportée'], 400);
+    //     }
     
+    //     // Récupérer la catégorie par ID, ou échouer si elle n'existe pas
+    //     $category = Category::findOrFail($categoryId);
+    
+    //     // Récupérer les livres de la catégorie
+    //     $books = $category->books->map(function ($book) use ($locale) {
+    //         return [
+    //             'id' => $book->id,
+    //             // 'title' => $this->translationService->translate($book->title, $locale),
+    //             'title' => $translations[$locale]['title'] ?? $book->title,
+    //             // 'description' => $this->translationService->translate($book->description, $locale)
+    //             'description' => $translations[$locale]['description'] ?? $book->description,
+    //             'image' =>$book->image,
+    //         ];
+    //     });
+    
+    //     // Traduire le nom de la catégorie
+    //     // $translatedCategory = $this->translationService->translate($category->name, $locale);
+    //     $translatedCategory = $translations[$locale]['name'] ?? $category->name;
+    
+    //     return response()->json([
+    //         'message' => 'Livres de la catégorie ' . $translatedCategory,
+    //         'category' => $translatedCategory,
+    //         'books' => $books,
+    //     ], 200);
+    // }
+    
+    public function getBooks($categoryId)
+{
+    // Récupérer la langue choisie par l'utilisateur ou utiliser la locale par défaut
+    $locale = app()->getLocale();
+
+    // Vérifiez si la langue est prise en charge
+    if (!in_array($locale, $this->translationService->getSupportedLanguages())) {
+        return response()->json(['message' => 'Langue non supportée'], 400);
+    }
+
+    // Récupérer la catégorie par ID, ou échouer si elle n'existe pas
+    $category = Category::findOrFail($categoryId);
+
+    // Récupérer les livres de la catégorie
+    $books = $category->books->map(function ($book) use ($locale) {
+        // Traduction du titre et de la description du livre
+        $translatedTitle = $book->translations[$locale]['title'] ?? $book->title;
+        $translatedDescription = $book->translations[$locale]['description'] ?? $book->description;
+
+        return [
+            'id' => $book->id,
+            'title' => $translatedTitle,
+            'description' => $translatedDescription,
+            'image' => $book->image,
+        ];
+    });
+
+    // Traduire le nom de la catégorie
+    $translatedCategory = $category->translations[$locale]['name'] ?? $category->name;
+
+    return response()->json([
+        'message' => 'Livres de la catégorie ' . $translatedCategory,
+        'category' => $translatedCategory,
+        'books' => $books,
+    ], 200);
+}
+
     /**
      * Store a newly created resource in storage.
      */

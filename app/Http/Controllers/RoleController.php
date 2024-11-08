@@ -97,6 +97,11 @@ class RoleController extends Controller
         return response()->json(['error' => 'Role not found'], 404);
     }
 
+       // Vérifier si le rôle a un ID 1, 2, 3 ou 4 (rôles par défaut)
+       if (in_array($role->id, [1, 2, 3, 4])) {
+        return response()->json(['error' => "Vous n'êtes pas autorisé à modifier ce rôle"], 403);
+    }
+
     // Mettre à jour le rôle avec les données validées
     $role->update(['name' => $validatedData['name']]);
 
@@ -119,6 +124,11 @@ class RoleController extends Controller
 
         if (!$role) {
             return response()->json(['erreur' => 'Rôle non trouvé'], 404);
+        }
+
+         // Vérifier si le rôle a un ID 1, 2, 3 ou 4 (rôles par défaut)
+        if (in_array($role->id, [1, 2, 3, 4])) {
+            return response()->json(['error' => "Vous n'êtes pas autorisé à supprimer ce rôle"], 403);
         }
     
         $role->delete();

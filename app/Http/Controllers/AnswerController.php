@@ -56,33 +56,35 @@ class AnswerController extends Controller
     //          'data' => $answer
     //      ], 201);
     // }
-    public function store(StoreAnswerRequest $request)
-{
-    // Valider et créer une nouvelle réponse
-    $validatedData = $request->validated();
-    $answer = Answer::create($validatedData);
 
-    // Traduire le texte de la réponse dans les autres langues supportées
-    $translations = [];
-    foreach ($this->translationService->getSupportedLanguages() as $lang) {
-        if ($lang !== $request->user()->locale) {
-            $translations[$lang] = [
-                'text' => $this->translationService->translate($answer->text, $lang, $request->user()->locale),
-            ];
-        }
-    }
+    
+//     public function store(StoreAnswerRequest $request)
+// {
+//     // Valider et créer une nouvelle réponse
+//     $validatedData = $request->validated();
+//     $answer = Answer::create($validatedData);
 
-       // Assigner les traductions
-       $answer->translations = $translations;
+//     // Traduire le texte de la réponse dans les autres langues supportées
+//     $translations = [];
+//     foreach ($this->translationService->getSupportedLanguages() as $lang) {
+//         if ($lang !== $request->user()->locale) {
+//             $translations[$lang] = [
+//                 'text' => $this->translationService->translate($answer->text, $lang, $request->user()->locale),
+//             ];
+//         }
+//     }
 
-        // Sauvegarder le chapitre avec les traductions
-        $answer->save();
+//        // Assigner les traductions
+//        $answer->translations = $translations;
+
+//         // Sauvegarder le chapitre avec les traductions
+//         $answer->save();
         
-    return response()->json([
-        'message' => 'Answer created successfully',
-        'data' => $answer 
-    ], 201);
-}
+//     return response()->json([
+//         'message' => 'Answer created successfully',
+//         'data' => $answer 
+//     ], 201);
+// }
 
 
     /**

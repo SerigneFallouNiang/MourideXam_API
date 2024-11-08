@@ -158,18 +158,27 @@ public function getBooksWithReadChaptersByUser()
         ], 200);
     }
 
+        // Récupérer la langue choisie par l'utilisateur ou utiliser la locale par défaut
+        $locale = app()->getLocale();
+
+
     // Préparer les livres avec le pourcentage de progression
-    $booksWithProgress = $books->map(function ($book) {
+    $booksWithProgress = $books->map(function ($book) use ($locale){
         $totalChapters = $book->chapters->count(); // Nombre total de chapitres
         $completedChapters = $book->chapters->sum('quiz.completed_count'); // Nombre de chapitres/quiz terminés
         $progress = $totalChapters > 0 ? round(($completedChapters / $totalChapters) * 100, 2) : 0; // Calcul du pourcentage
 
        
+           // Récupérer les traductions du champ translations
+           $translations = $book->translations;
+
         return [
             'id' => $book->id,
-            'title' => $book->title,
+            // 'title' => $book->title,
+            'title' => $translations[$locale]['title'] ?? $book->title,
             'image' => $book->image,
-            'description' => $book->description,
+            // 'description' => $book->description,
+            'description' => $translations[$locale]['description'] ?? $book->description,
             'category_id' => $book->category_id,
             'created_at' => $book->created_at,
             'updated_at' => $book->updated_at,
