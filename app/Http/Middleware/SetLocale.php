@@ -13,7 +13,8 @@ class SetLocale
         if ($request->user() && $request->user()->language) {
             $locale = $request->user()->language;
         } else {
-            $locale = config('app.locale');
+            // $locale = config('app.locale');
+            $locale = 'fr';
         }
 
         App::setLocale($locale);
