@@ -165,9 +165,7 @@ class QuizzeController extends Controller
 
 
 
-// Passer quiz pour un utilisateur 
-
-    public function startQuiz($chapterId)
+public function startQuiz($chapterId)
 {
     // Récupérer l'utilisateur authentifié
     $user = Auth::user();
@@ -190,11 +188,11 @@ class QuizzeController extends Controller
     $questionsWithAnswers = $questions->map(function ($question) use ($locale) {
         return [
             'id' => $question->id,
-            'text' => $this->translationService->translate($question->text, $locale), // Traduire la question
+            'text' => $question->translations[$locale]['text'] ?? $question->text, // Utiliser la traduction de la question ou le texte original
             'answers' => $question->answers->map(function ($answer) use ($locale) {
                 return [
                     'id' => $answer->id,
-                    'text' => $this->translationService->translate($answer->text, $locale), // Traduire la réponse
+                    'text' => $answer->translations[$locale]['text'] ?? $answer->text, // Utiliser la traduction de la réponse ou le texte original
                 ];
             })
         ];
@@ -204,12 +202,11 @@ class QuizzeController extends Controller
     return response()->json([
         'quiz' => [
             'id' => $quiz->id,
-            'title' => $this->translationService->translate($quiz->title, $locale), // Traduire le titre du quiz
+            'title' => $quiz->translations[$locale]['title'] ?? $quiz->title, // Utiliser la traduction du titre ou le titre original
         ],
         'questions' => $questionsWithAnswers
     ]);
 }
-
 
 
 
@@ -419,10 +416,10 @@ public function checkLastAttempt($quizId)
         ]);
     }
 
-    // L'utilisateur peut reprendre le quiz
-    return response()->json([
-        'canRetake' => true,
-        'message' => $this->translationService->translate("Vous pouvez passer le quiz maintenant.", $user->locale),
-    ]);
+    // // L'utilisateur peut reprendre le quiz
+    // return response()->json([
+    //     'canRetake' => true,
+    //     'message' => $this->translationService->translate("Vous pouvez passer le quiz maintenant.", $user->locale),
+    // ]);
 }
 }
