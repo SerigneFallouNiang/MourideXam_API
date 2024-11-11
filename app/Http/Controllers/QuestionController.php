@@ -90,7 +90,7 @@ public function store(StoreQuestionRequest $request)
 
     // Créer la question avec la traduction dans la langue par défaut
     $question = Question::create([
-        'text' => $this->translationService->translate($validatedData['text'], $request->user()->locale, 'en'),
+        'text' => $this->translationService->translate($validatedData['text'], $request->user()->locale),
     ]);
 
     $answers = [];
@@ -236,7 +236,7 @@ public function store(StoreQuestionRequest $request)
     // Mettre à jour la question avec la traduction dans la langue par défaut
     if (isset($validatedData['text'])) {
         $question->update([
-            'text' => $this->translationService->translate($validatedData['text'], $request->user()->locale, 'en'),
+            'text' => $this->translationService->translate($validatedData['text'], $request->user()->locale),
         ]);
 
         // Mettre à jour les traductions de la question

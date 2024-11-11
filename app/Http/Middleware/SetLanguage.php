@@ -26,7 +26,7 @@ class SetLanguage
             $locale = $request->user()->locale;
         }
 
-        $locale = in_array($locale, $supportedLanguages) ? $locale : config('app.locale');
+        $locale = in_array($locale, $supportedLanguages) ? $locale : $locale = 'fr'; 
         App::setLocale($locale);
 
         return $next($request);
