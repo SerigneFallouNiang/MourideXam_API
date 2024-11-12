@@ -80,58 +80,86 @@ class QuestionController extends Controller
 // }
 public function store(StoreQuestionRequest $request)
 {
-    // Validation des données de la question et des réponses
-    $validatedData = $request->validate([
-        'text' => 'required|string',
-        'answers' => 'required|array', // S'assurer que les réponses sont fournies sous forme de tableau
-        'answers.*.text' => 'required|string', // Chaque réponse doit avoir un texte
-        'answers.*.correct_one' => 'required|boolean', // Indiquer si la réponse est correcte ou non
-    ]);
-
-    // Créer la question avec la traduction dans la langue par défaut
-    $question = Question::create([
-        'text' => $this->translationService->translate($validatedData['text'], $request->user()->locale),
-    ]);
-
-    $answers = [];
-    foreach ($validatedData['answers'] as $answerData) {
-        // Création d'une réponse avec les traductions dans toutes les langues prises en charge
-        $translations = [];
-        foreach ($this->translationService->getSupportedLanguages() as $lang) {
-            $translatedText = $this->translationService->translate($answerData['text'], $request->user()->locale, $lang);
-            $translations[$lang] = $translatedText;
-        }
-
-        // Enregistrer la réponse avec les traductions comme JSON
-        $answer = Answer::create([
-            'text' => $translations['en'],  // Texte en anglais par défaut
-            'correct_one' => $answerData['correct_one'],
-            'question_id' => $question->id,
-            'translations' => $translations,  // Sauvegarde les traductions dans un champ JSON
+    try {
+        // Validation des données de la question et des réponses
+        $validatedData = $request->validate([
+            'text' => 'required|string',
+            'answers' => 'required|array',
+            'answers.*.text' => 'required|string',
+            'answers.*.correct_one' => 'required|boolean',
         ]);
 
-        // Ajouter la réponse (avec ses traductions) au tableau des réponses
-        $answers[] = $answer;
-    }
+        // Créer la question
+        $question = Question::create([
+            'text' => $validatedData['text'],
+        ]);
 
-    // Traduire la question dans d'autres langues et sauvegarder dans la propriété `translations`
-    $questionTranslations = [];
-    foreach ($this->translationService->getSupportedLanguages() as $lang) {
-        if ($lang !== 'en') {
-            $questionTranslations[$lang] = [
-                'text' => $this->translationService->translate($validatedData['text'], $request->user()->locale, $lang),
-            ];
+        $answers = [];
+        // Créer les réponses avec leurs traductions
+        foreach ($validatedData['answers'] as $answerData) {
+            // Générer les traductions pour chaque réponse
+            $translations = [];
+            foreach ($this->translationService->getSupportedLanguages() as $lang) {
+                if ($lang !== $request->user()->locale) {
+                    $translations[$lang] = [
+                        'text' => $this->translationService->translate(
+                            $answerData['text'],
+                            $lang,
+                            $request->user()->locale
+                        ),
+                    ];
+                }
+            }
+
+            // Créer la réponse avec ses traductions
+            $answer = Answer::create([
+                'text' => $answerData['text'],
+                'correct_one' => $answerData['correct_one'],
+                'question_id' => $question->id,
+                'translations' => $translations,
+            ]);
+
+            $answers[] = $answer;
         }
+
+        // Traduire la question dans les autres langues supportées
+        $translations = [];
+        foreach ($this->translationService->getSupportedLanguages() as $lang) {
+            if ($lang !== $request->user()->locale) {
+                $translations[$lang] = [
+                    'text' => $this->translationService->translate(
+                        $question->text,
+                        $lang,
+                        $request->user()->locale
+                    ),
+                ];
+            }
+        }
+
+        // Sauvegarder les traductions de la question
+        $question->translations = $translations;
+        $question->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Question et réponses créées avec succès',
+            'question' => $question,
+            'answers' => $answers
+        ], 201);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors(),
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Une erreur est survenue lors de la création de la question',
+            'error' => $e->getMessage(),
+        ], 500);
     }
-
-    $question->translations = $questionTranslations;
-    $question->save();
-
-    return response()->json([
-        'message' => 'Question and answers created successfully',
-        'question' => $question,
-        'answers' => $answers
-    ], 201);
 }
 
 
@@ -222,83 +250,116 @@ public function store(StoreQuestionRequest $request)
     
     //     return response()->json($question, 200);
     // }
-    public function update(UpdateQuestionRequest $request, Question $question)
+//     
+public function update(UpdateQuestionRequest $request, Question $question)
 {
-    // Validation des données de la question et des réponses
-    $validatedData = $request->validate([
-        'text' => 'sometimes|string',
-        'answers' => 'sometimes|array',
-        'answers.*.id' => 'nullable|exists:answers,id', // Pour identifier les réponses existantes
-        'answers.*.text' => 'sometimes|string',
-        'answers.*.correct_one' => 'sometimes|boolean',
-    ]);
-
-    // Mettre à jour la question avec la traduction dans la langue par défaut
-    if (isset($validatedData['text'])) {
-        $question->update([
-            'text' => $this->translationService->translate($validatedData['text'], $request->user()->locale),
+    try {
+        // Validation des données
+        $validatedData = $request->validate([
+            'text' => 'sometimes|string',
+            'answers' => 'sometimes|array',
+            'answers.*.id' => 'nullable|exists:answers,id',
+            'answers.*.text' => 'required_without:answers.*.id|string',
+            'answers.*.correct_one' => 'required_without:answers.*.id|boolean',
         ]);
 
-        // Mettre à jour les traductions de la question
-        $translations = [];
-        foreach ($this->translationService->getSupportedLanguages() as $lang) {
-            if ($lang !== $request->user()->locale) {
-                $translations[$lang] = [
-                    'text' => $this->translationService->translate($validatedData['text'], $request->user()->locale, $lang),
-                ];
-            }
-        }
-        $question->translations = $translations;
-        $question->save();
-    }
-
-    // Gérer les réponses
-    $existingAnswerIds = $question->answers->pluck('id')->toArray();
-    $updatedAnswerIds = [];
-
-    foreach ($validatedData['answers'] as $answerData) {
-        $translations = [];
-        foreach ($this->translationService->getSupportedLanguages() as $lang) {
-            $translatedText = $this->translationService->translate($answerData['text'], $request->user()->locale, $lang);
-            $translations[$lang] = $translatedText;
-        }
-
-        if (isset($answerData['id'])) {
-            // Mettre à jour une réponse existante
-            $answer = Answer::find($answerData['id']);
-            if ($answer && $answer->question_id === $question->id) {
-                $answer->update([
-                    'text' => $translations['en'],  // Texte en anglais par défaut
-                    'correct_one' => $answerData['correct_one'],
-                    'translations' => $translations,  // Mettre à jour les traductions
-                ]);
-                $updatedAnswerIds[] = $answer->id;
-            }
-        } else {
-            // Créer une nouvelle réponse
-            $answer = Answer::create([
-                'text' => $translations['en'],
-                'correct_one' => $answerData['correct_one'],
-                'question_id' => $question->id,
-                'translations' => $translations,
+        // Mise à jour de la question si le texte est fourni
+        if (isset($validatedData['text'])) {
+            $question->update([
+                'text' => $validatedData['text'],
             ]);
-            $updatedAnswerIds[] = $answer->id;
+
+            // Mettre à jour les traductions de la question
+            $translations = [];
+            foreach ($this->translationService->getSupportedLanguages() as $lang) {
+                if ($lang !== $request->user()->locale) {
+                    $translations[$lang] = [
+                        'text' => $this->translationService->translate(
+                            $validatedData['text'],
+                            $lang,
+                            $request->user()->locale
+                        ),
+                    ];
+                }
+            }
+            
+            $question->translations = $translations;
+            $question->save();
         }
+
+        // Mise à jour des réponses si fournies
+        if (isset($validatedData['answers'])) {
+            $existingAnswerIds = $question->answers->pluck('id')->toArray();
+            $updatedAnswerIds = [];
+
+            foreach ($validatedData['answers'] as $answerData) {
+                // Générer les traductions pour la réponse
+                $translations = [];
+                foreach ($this->translationService->getSupportedLanguages() as $lang) {
+                    if ($lang !== $request->user()->locale) {
+                        $translations[$lang] = [
+                            'text' => $this->translationService->translate(
+                                $answerData['text'],
+                                $lang,
+                                $request->user()->locale
+                            ),
+                        ];
+                    }
+                }
+
+                if (isset($answerData['id'])) {
+                    // Mise à jour d'une réponse existante
+                    $answer = Answer::find($answerData['id']);
+                    if ($answer && $answer->question_id === $question->id) {
+                        $answer->update([
+                            'text' => $answerData['text'],
+                            'correct_one' => $answerData['correct_one'] ?? $answer->correct_one,
+                            'translations' => $translations,
+                        ]);
+                        $updatedAnswerIds[] = $answer->id;
+                    }
+                } else {
+                    // Création d'une nouvelle réponse
+                    $answer = Answer::create([
+                        'text' => $answerData['text'],
+                        'correct_one' => $answerData['correct_one'],
+                        'question_id' => $question->id,
+                        'translations' => $translations,
+                    ]);
+                    $updatedAnswerIds[] = $answer->id;
+                }
+            }
+
+            // Supprimer les réponses qui ne sont plus présentes
+            if (!empty($existingAnswerIds)) {
+                Answer::whereIn('id', array_diff($existingAnswerIds, $updatedAnswerIds))
+                    ->where('question_id', $question->id)
+                    ->delete();
+            }
+        }
+
+        // Recharger la question avec ses réponses
+        $question->load('answers');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Question et réponses mises à jour avec succès',
+            'question' => $question,
+        ], 200);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors(),
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Une erreur est survenue lors de la mise à jour de la question',
+            'error' => $e->getMessage(),
+        ], 500);
     }
-
-    // Supprimer les réponses qui n'existent plus dans la mise à jour
-    $answersToDelete = array_diff($existingAnswerIds, $updatedAnswerIds);
-    if (!empty($answersToDelete)) {
-        Answer::whereIn('id', $answersToDelete)->delete();
-    }
-
-    // Charger les relations mises à jour
-    $question->load('answers');
-
-    return response()->json([
-        'message' => 'Question and answers updated successfully',
-        'question' => $question,
-    ], 200);
 }
 
     /**
