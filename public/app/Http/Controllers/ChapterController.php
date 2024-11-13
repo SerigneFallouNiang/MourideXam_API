@@ -39,69 +39,263 @@ class ChapterController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    // public function store(StoreChapterRequest $request)
+    // {
+    //     try {
+    //         // Valider la requête
+    //         $validatedData = $request->validate([
+    //             'title' => 'required|string|max:255',
+    //             'description' => 'nullable|string',
+    //             'video' => 'nullable|mimes:mp4,avi,mov|max:50000', // 50MB max pour la vidéo
+    //             'book_id' => 'required|exists:books,id',
+    //             'pdf' => 'nullable|mimes:pdf|max:50000', // 50MB max pour le PDF
+    //         ]);
+    //     } catch (\Illuminate\Validation\ValidationException $e) {
+    //         // Retourner les erreurs de validation si elles existent
+    //         return response()->json(['errors' => $e->errors()], 422);
+    //     }
+    
+    //     $relativePdfPath = null;
+    //     $relativeVideoPath = null;
+    
+    //     // Stocker le fichier PDF s'il existe
+    //     if ($request->hasFile('pdf')) {
+    //         $pdfPath = $request->file('pdf')->store('public/pdf');
+    //         $relativePdfPath = 'pdf/' . basename($pdfPath);
+    //     }
+    
+    //     // Stocker la vidéo si elle existe
+    //     if ($request->hasFile('video')) {
+    //         $videoPath = $request->file('video')->store('public/videos');
+    //         $relativeVideoPath = 'videos/' . basename($videoPath);
+    //     }
+    
+    //     // Créer l'enregistrement dans la base de données
+    //     $chapter = Chapter::create([
+    //         'title' => $validatedData['title'],
+    //         'description' => $validatedData['description'],
+    //         'file_path' => $relativePdfPath, // Chemin du PDF (peut être null)
+    //         'video_path' => $relativeVideoPath, // Chemin de la vidéo (peut être null)
+    //         'book_id' => $validatedData['book_id'],
+    //     ]);
+    
+    //     // Traduire le titre et la description dans les autres langues supportées
+    //     $translations = [];
+    //     foreach ($this->translationService->getSupportedLanguages() as $lang) {
+    //         if ($lang !== $request->user()->locale) {
+    //             $translations[$lang] = [
+    //                 'title' => $this->translationService->translate($chapter->title, $lang, $request->user()->locale),
+    //                 'description' => $this->translationService->translate($chapter->description, $lang, $request->user()->locale),
+    //             ];
+    //         }
+    //     }
+    
+    //     // Assigner les traductions au chapitre
+    //     $chapter->translations = $translations;
+    
+    //     // Sauvegarder le chapitre avec les traductions
+    //     $chapter->save();
+    
+    //     // Retourner une réponse JSON avec un message de succès et les détails du chapitre
+    //     return response()->json(['message' => 'Chapitre créé avec succès', 'chapter' => $chapter], 201);
+    // }
+    
+    //avec S3
+    // public function store(StoreChapterRequest $request)
+    // {
+    //     try {
+    //         // Valider la requête
+    //         $validatedData = $request->validate([
+    //             'title' => 'required|string|max:255',
+    //             'description' => 'nullable|string',
+    //             'video' => 'nullable|mimes:mp4,avi,mov|max:50000', // 50MB max pour la vidéo
+    //             'book_id' => 'required|exists:books,id',
+    //             'pdf' => 'nullable|mimes:pdf|max:50000', // 50MB max pour le PDF
+    //         ]);
+    //     } catch (\Illuminate\Validation\ValidationException $e) {
+    //         return response()->json(['errors' => $e->errors()], 422);
+    //     }
+    
+    //     $relativePdfPath = null;
+    //     $relativeVideoPath = null;
+    
+    //     // Stocker le fichier PDF sur S3 s'il existe
+    //     if ($request->hasFile('pdf')) {
+    //         $pdfFile = $request->file('pdf');
+    //         $pdfFileName = time() . '_' . uniqid() . '.' . $pdfFile->getClientOriginalExtension();
+    //         $pdfPath = Storage::disk('s3')->putFileAs(
+    //             'pdf',
+    //             $pdfFile,
+    //             $pdfFileName,
+    //             'public'
+    //         );
+    //         $relativePdfPath = $pdfPath;
+    //     }
+    
+    //     // Stocker la vidéo sur S3 si elle existe
+    //     if ($request->hasFile('video')) {
+    //         $videoFile = $request->file('video');
+    //         $videoFileName = time() . '_' . uniqid() . '.' . $videoFile->getClientOriginalExtension();
+    //         $videoPath = Storage::disk('s3')->putFileAs(
+    //             'videos',
+    //             $videoFile,
+    //             $videoFileName,
+    //             'public'
+    //         );
+    //         $relativeVideoPath = $videoPath;
+    //     }
+    
+    //     // Créer l'enregistrement dans la base de données
+    //     $chapter = Chapter::create([
+    //         'title' => $validatedData['title'],
+    //         'description' => $validatedData['description'],
+    //         'file_path' => $relativePdfPath ? Storage::disk('s3')->url($relativePdfPath) : null,
+    //         'video_path' => $relativeVideoPath ? Storage::disk('s3')->url($relativeVideoPath) : null,
+    //         'book_id' => $validatedData['book_id'],
+    //     ]);
+    
+    //     // Traduire le titre et la description dans les autres langues supportées
+    //     $translations = [];
+    //     foreach ($this->translationService->getSupportedLanguages() as $lang) {
+    //         if ($lang !== $request->user()->locale) {
+    //             $translations[$lang] = [
+    //                 'title' => $this->translationService->translate($chapter->title, $lang, $request->user()->locale),
+    //                 'description' => $this->translationService->translate($chapter->description, $lang, $request->user()->locale),
+    //             ];
+    //         }
+    //     }
+    
+    //     // Assigner les traductions au chapitre
+    //     $chapter->translations = $translations;
+    
+    //     // Sauvegarder le chapitre avec les traductions
+    //     $chapter->save();
+    
+    //     return response()->json([
+    //         'message' => 'Chapitre créé avec succès', 
+    //         'chapter' => $chapter,
+    //         'pdf_url' => $relativePdfPath ? Storage::disk('s3')->url($relativePdfPath) : null,
+    //         'video_url' => $relativeVideoPath ? Storage::disk('s3')->url($relativeVideoPath) : null
+    //     ], 201);
+    // }
+
     public function store(StoreChapterRequest $request)
-    {
+{
+    try {
+        // Validation moved to FormRequest class
+        $validatedData = $request->validated();
+        
+        // Initialize file paths
+        $fileData = $this->handleFileUploads($request);
+        
+        DB::beginTransaction();
+        
         try {
-            // Valider la requête
-            $validatedData = $request->validate([
-                'title' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'video' => 'nullable|mimes:mp4,avi,mov|max:50000', // 50MB max pour la vidéo
-                'book_id' => 'required|exists:books,id',
-                'pdf' => 'nullable|mimes:pdf|max:50000', // 50MB max pour le PDF
+            // Create chapter
+            $chapter = Chapter::create([
+                'title' => $validatedData['title'],
+                'description' => $validatedData['description'],
+                'file_path' => $fileData['pdf_url'],
+                'video_path' => $fileData['video_url'],
+                'book_id' => $validatedData['book_id'],
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Retourner les erreurs de validation si elles existent
-            return response()->json(['errors' => $e->errors()], 422);
-        }
-    
-        $relativePdfPath = null;
-        $relativeVideoPath = null;
-    
-        // Stocker le fichier PDF s'il existe
-        if ($request->hasFile('pdf')) {
-            $pdfPath = $request->file('pdf')->store('public/pdf');
-            $relativePdfPath = 'pdf/' . basename($pdfPath);
-        }
-    
-        // Stocker la vidéo si elle existe
-        if ($request->hasFile('video')) {
-            $videoPath = $request->file('video')->store('public/videos');
-            $relativeVideoPath = 'videos/' . basename($videoPath);
-        }
-    
-        // Créer l'enregistrement dans la base de données
-        $chapter = Chapter::create([
-            'title' => $validatedData['title'],
-            'description' => $validatedData['description'],
-            'file_path' => $relativePdfPath, // Chemin du PDF (peut être null)
-            'video_path' => $relativeVideoPath, // Chemin de la vidéo (peut être null)
-            'book_id' => $validatedData['book_id'],
-        ]);
-    
-        // Traduire le titre et la description dans les autres langues supportées
-        $translations = [];
-        foreach ($this->translationService->getSupportedLanguages() as $lang) {
-            if ($lang !== $request->user()->locale) {
-                $translations[$lang] = [
-                    'title' => $this->translationService->translate($chapter->title, $lang, $request->user()->locale),
-                    'description' => $this->translationService->translate($chapter->description, $lang, $request->user()->locale),
-                ];
+
+            // Handle translations
+            $translations = $this->handleTranslations($chapter, $request->user()->locale);
+            $chapter->translations = $translations;
+            $chapter->save();
+            
+            DB::commit();
+            
+            return response()->json([
+                'message' => 'Chapitre créé avec succès',
+                'chapter' => $chapter,
+                'pdf_url' => $fileData['pdf_url'],
+                'video_url' => $fileData['video_url']
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Delete uploaded files if database transaction fails
+            if ($fileData['pdf_path']) {
+                Storage::disk('s3')->delete($fileData['pdf_path']);
             }
+            if ($fileData['video_path']) {
+                Storage::disk('s3')->delete($fileData['video_path']);
+            }
+            throw $e;
         }
-    
-        // Assigner les traductions au chapitre
-        $chapter->translations = $translations;
-    
-        // Sauvegarder le chapitre avec les traductions
-        $chapter->save();
-    
-        // Retourner une réponse JSON avec un message de succès et les détails du chapitre
-        return response()->json(['message' => 'Chapitre créé avec succès', 'chapter' => $chapter], 201);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue lors de la création du chapitre',
+            'error' => $e->getMessage()
+        ], 500);
     }
-    
+}
 
+private function handleFileUploads(StoreChapterRequest $request): array
+{
+    $fileData = [
+        'pdf_path' => null,
+        'pdf_url' => null,
+        'video_path' => null,
+        'video_url' => null
+    ];
 
+    if ($request->hasFile('pdf')) {
+        $pdfFile = $request->file('pdf');
+        $pdfFileName = $this->generateFileName($pdfFile);
+        $fileData['pdf_path'] = Storage::disk('s3')->putFileAs(
+            'pdf',
+            $pdfFile,
+            $pdfFileName,
+            'public'
+        );
+        $fileData['pdf_url'] = Storage::disk('s3')->url($fileData['pdf_path']);
+    }
+
+    if ($request->hasFile('video')) {
+        $videoFile = $request->file('video');
+        $videoFileName = $this->generateFileName($videoFile);
+        $fileData['video_path'] = Storage::disk('s3')->putFileAs(
+            'videos',
+            $videoFile,
+            $videoFileName,
+            'public'
+        );
+        $fileData['video_url'] = Storage::disk('s3')->url($fileData['video_path']);
+    }
+
+    return $fileData;
+}
+
+private function generateFileName($file): string
+{
+    return time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+}
+
+private function handleTranslations(Chapter $chapter, string $currentLocale): array
+{
+    $translations = [];
+    foreach ($this->translationService->getSupportedLanguages() as $lang) {
+        if ($lang !== $currentLocale) {
+            $translations[$lang] = [
+                'title' => $this->translationService->translate(
+                    $chapter->title,
+                    $lang,
+                    $currentLocale
+                ),
+                'description' => $this->translationService->translate(
+                    $chapter->description,
+                    $lang,
+                    $currentLocale
+                ),
+            ];
+        }
+    }
+    return $translations;
+}
     /**
      * Show the form for editing the specified resource.
      */
@@ -208,68 +402,6 @@ public function markAsRead($chapterId)
 }
     
   
-
-//     public function getChapterEtatByUser($bookId)
-// {
-//     // Récupérer l'utilisateur authentifié
-//     $user = Auth::user();
-
-//     // Récupérer le livre correspondant à l'ID
-//     $book = Book::find($bookId);
-//     if (!$book) {
-//         return response()->json([
-//             'message' => 'Livre non trouvé',
-//         ], 404);
-//     }
-
-//     // Vérifier la locale de l'utilisateur
-//     $locale = $user ? $user->locale : config('app.locale');
-
-//     // Si l'utilisateur n'est pas authentifié, retourner tous les chapitres sans état
-//     if (!$user) {
-//         $chapters = Chapter::where('book_id', $bookId)->get();
-//         return response()->json([
-//             'message' => 'Liste des chapitres',
-//             'Chapitres' => $chapters->map(function ($chapter) use ($locale) {
-//                 return [
-//                     'id' => $chapter->id,
-//                     'Titre du chapitre' => $this->translationService->translate($chapter->title, $locale),
-//                     'Lien' => $chapter->lien,
-//                     'Description' => $this->translationService->translate($chapter->description, $locale),
-//                     'Fichier' => $chapter->file_path,
-//                     'Video' => $chapter->video_path,
-//                     'lue' => false,
-//                     'terminer' => false,
-//                 ];
-//             })
-//         ], 200);
-//     }
-
-//     // Récupérer les chapitres avec la progression de l'utilisateur
-//     $chapters = Chapter::with(['userProgress' => function($query) use ($user) {
-//         $query->where('user_id', $user->id);
-//     }])->where('book_id', $bookId)->get();
-    
-//     // Formater la réponse avec l'état de lecture de l'utilisateur
-//     return response()->json([
-//         'message' => 'Chapitres récupérés avec succès',
-//         'Livre' => $this->translationService->translate($book->title, $locale),
-//         'Chapitres' => $chapters->map(function ($chapter) use ($locale) {
-//             return [
-//                 'id' => $chapter->id,
-//                 'Titre du chapitre' => $this->translationService->translate($chapter->title, $locale),
-//                 'Lien' => $chapter->lien,
-//                 'Description' => $this->translationService->translate($chapter->description, $locale),
-//                 'Fichier' => $chapter->file_path,
-//                 'Video' => $chapter->video_path,
-//                 // Ajouter l'état "lu" et "terminer" selon la progression de l'utilisateur
-//                 'lue' => $chapter->userProgress->isNotEmpty() && $chapter->userProgress[0]->lu,
-//                 'terminer' => $chapter->userProgress->isNotEmpty() && $chapter->userProgress[0]->terminer,
-//             ];
-//         })
-//     ], 200);
-// }
-
 
 public function getChapterEtatByUser($bookId)
 {

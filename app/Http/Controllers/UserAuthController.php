@@ -23,32 +23,62 @@ public function __construct(TranslationService $translationService)
     $this->translationService = $translationService;
 }
 
+// public function register(Request $request): JsonResponse
+// {
+//     $request->validate([
+//         'name' => ['required', 'string', 'max:255'],
+//         'telephone' => ['required', 'string', 'max:20'],
+//         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
+//         'password' => ['required', 'confirmed', Rules\Password::defaults()],
+//         'locale' => ['required', 'string']
+//     ]);
+
+//     $user = User::create([
+//         'name' => $request->input('name'),
+//         'email' => $request->input('email'),
+//         'telephone' => $request->input('telephone'),
+//         'password' => Hash::make($request->input('password')),
+//          'locale' => $request->locale,
+//     ]);
+
+//     // Attribuer le rôle 'apprenant' par défaut
+//     $user->assignRole('apprenant');
+
+//     return response()->json([
+//         'message' => 'Utilisateur enregistré avec succès',
+//         'user' => $user,
+//     ], 201);
+// }
+
 public function register(Request $request): JsonResponse
-{
-    $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'telephone' => ['required', 'string', 'max:20'],
-        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
-        'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        'locale' => ['required', 'string']
-    ]);
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'telephone' => ['required', 'string', 'max:20', 'unique:users,telephone'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'locale' => ['required', 'string']
+        ], [
+            'email.unique' => 'Cette adresse email est déjà utilisée.',
+            'telephone.unique' => 'Ce numéro de téléphone est déjà utilisé.'
+        ]);
 
-    $user = User::create([
-        'name' => $request->input('name'),
-        'email' => $request->input('email'),
-        'telephone' => $request->input('telephone'),
-        'password' => Hash::make($request->input('password')),
-         'locale' => $request->locale,
-    ]);
+        $user = User::create([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'telephone' => $request->input('telephone'),
+            'password' => Hash::make($request->input('password')),
+            'locale' => $request->locale,
+        ]);
 
-    // Attribuer le rôle 'apprenant' par défaut
-    $user->assignRole('apprenant');
+        // Assign the 'apprenant' role by default
+        $user->assignRole('apprenant');
 
-    return response()->json([
-        'message' => 'Utilisateur enregistré avec succès',
-        'user' => $user,
-    ], 201);
-}
+        return response()->json([
+            'message' => 'Utilisateur enregistré avec succès',
+            'user' => $user,
+        ], 201);
+    }
 
     
 

@@ -10,14 +10,15 @@ use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'store']]);
-    //     $this->middleware('permission:role-create', ['only' => ['store']]);
-    //     $this->middleware('permission:role-edit', ['only' => ['update']]);
-    //     $this->middleware('permission:role-delete', ['only' => ['destroy']]);
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'store']]);
+        $this->middleware('permission:role-create', ['only' => ['store']]);
+        $this->middleware('permission:role-edit', ['only' => ['update']]);
+        $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+    }
 
+    
     // Liste des rôles avec pagination
     public function index(Request $request)
     {
@@ -98,7 +99,7 @@ class RoleController extends Controller
     }
 
        // Vérifier si le rôle a un ID 1, 2, 3 ou 4 (rôles par défaut)
-       if (in_array($role->id, [1, 2, 3, 4])) {
+       if (in_array($role->id, [1, 2, 3, 5])) {
         return response()->json(['error' => "Vous n'êtes pas autorisé à modifier ce rôle"], 403);
     }
 
@@ -127,7 +128,7 @@ class RoleController extends Controller
         }
 
          // Vérifier si le rôle a un ID 1, 2, 3 ou 4 (rôles par défaut)
-        if (in_array($role->id, [1, 2, 3, 4])) {
+        if (in_array($role->id, [1, 2, 3, 5])) {
             return response()->json(['error' => "Vous n'êtes pas autorisé à supprimer ce rôle"], 403);
         }
     
