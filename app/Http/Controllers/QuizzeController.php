@@ -45,124 +45,65 @@ class QuizzeController extends Controller
    
 
 
-//     public function store(StoreQuizzeRequest $request)
-// {
-//     try {
-//         // Validation des données du quiz
-//         $validatedData = $request->validate([
-//             'title' => 'required|string|max:255|unique:quizzes,title',
-//             'chapter_id' => 'required|exists:chapters,id',
-//             'questions' => 'required|array',
-//             'questions.*' => 'exists:questions,id',
-//         ]);
-
-//         // Créer le quiz
-//         $quiz = Quizze::create([
-//             'title' => $validatedData['title'],
-//             'chapter_id' => $validatedData['chapter_id'],
-//         ]);
-
-//         // Traduire le titre dans les autres langues supportées
-//         $translations = [];
-//         foreach ($this->translationService->getSupportedLanguages() as $lang) {
-//             if ($lang !== $request->user()->locale) {
-//                 $translations[$lang] = [
-//                     'title' => $this->translationService->translate($quiz->title, $lang, $request->user()->locale),
-//                 ];
-//             }
-//         }
-
-//         // Assigner les traductions au quiz (si votre modèle supporte les traductions)
-//         $quiz->translations = $translations;
-//         $quiz->save();  // Sauvegarder les traductions dans la base de données si nécessaire
-
-//         // Assigner les questions au quiz
-//         $quiz->questions()->sync($validatedData['questions']);
-
-//         // Retourner une réponse avec le quiz et ses questions
-//         return response()->json([
-//             'success' => true,
-//             'message' => 'Quiz créé avec succès et questions assignées',
-//             'quiz' => $quiz->load('questions')  // Charger les questions associées
-//         ], 201);
-
-//     } catch (\Illuminate\Validation\ValidationException $e) {
-//         // Retourner les erreurs de validation
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Erreur de validation',
-//             'errors' => $e->errors(),
-//         ], 422);
-//     } catch (\Exception $e) {
-//         // Gestion des autres erreurs
-//         return response()->json([
-//             'success' => false,
-//             'message' => 'Une erreur est survenue lors de la création du quiz',
-//             'error' => $e->getMessage(),
-//         ], 500);
-//     }
-// }
-
-public function store(StoreQuestionRequest $request)
+    public function store(StoreQuizzeRequest $request)
 {
     try {
-        // Validation des données de la question et des réponses
+        // Validation des données du quiz
         $validatedData = $request->validate([
-            'text' => 'required|string',
-            'answers' => 'required|array', // S'assurer que les réponses sont fournies sous forme de tableau
-            'answers.*.text' => 'required|string', // Chaque réponse doit avoir un texte
-            'answers.*.correct_one' => 'required|boolean', // Indiquer si la réponse est correcte ou non
+            'title' => 'required|string|max:255|unique:quizzes,title',
+            'chapter_id' => 'required|exists:chapters,id',
+            'questions' => 'required|array',
+            'questions.*' => 'exists:questions,id',
         ]);
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        // Retourner les erreurs de validation si elles existent
-        return response()->json(['errors' => $e->errors()], 422);
-    }
 
-    // Créer la question avec la traduction dans la langue par défaut
-    $question = Question::create([
-        'text' => $validatedData['text'],
-    ]);
+        // Créer le quiz
+        $quiz = Quizze::create([
+            'title' => $validatedData['title'],
+            'chapter_id' => $validatedData['chapter_id'],
+        ]);
 
-    $answers = [];
-    foreach ($validatedData['answers'] as $answerData) {
-        // Création d'une réponse avec les traductions dans toutes les langues prises en charge
+        // Traduire le titre dans les autres langues supportées
         $translations = [];
         foreach ($this->translationService->getSupportedLanguages() as $lang) {
-            $translatedText = $this->translationService->translate($answerData['text'], $request->user()->locale, $lang);
-            $translations[$lang] = $translatedText;
+            if ($lang !== $request->user()->locale) {
+                $translations[$lang] = [
+                    'title' => $this->translationService->translate($quiz->title, $lang, $request->user()->locale),
+                ];
+            }
         }
 
-        // Enregistrer la réponse avec les traductions comme JSON
-        $answer = Answer::create([
-            'text' => $answerData['text'],
-            'correct_one' => $answerData['correct_one'],
-            'question_id' => $question->id,
-            'translations' => $translations,  // Sauvegarde les traductions dans un champ JSON
-        ]);
+        // Assigner les traductions au quiz (si votre modèle supporte les traductions)
+        $quiz->translations = $translations;
+        $quiz->save();  // Sauvegarder les traductions dans la base de données si nécessaire
 
-        // Ajouter la réponse (avec ses traductions) au tableau des réponses
-        $answers[] = $answer;
+        // Assigner les questions au quiz
+        $quiz->questions()->sync($validatedData['questions']);
+
+        // Retourner une réponse avec le quiz et ses questions
+        return response()->json([
+            'success' => true,
+            'message' => 'Quiz créé avec succès et questions assignées',
+            'quiz' => $quiz->load('questions')  // Charger les questions associées
+        ], 201);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        // Retourner les erreurs de validation
+        return response()->json([
+            'success' => false,
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors(),
+        ], 422);
+    } catch (\Exception $e) {
+        // Gestion des autres erreurs
+        return response()->json([
+            'success' => false,
+            'message' => 'Une erreur est survenue lors de la création du quiz',
+            'error' => $e->getMessage(),
+        ], 500);
     }
-
-    // Traduire la question dans d'autres langues et sauvegarder dans la propriété `translations`
-    $questionTranslations = [];
-    foreach ($this->translationService->getSupportedLanguages() as $lang) {
-        if ($lang !== $request->user()->locale) {
-            $questionTranslations[$lang] = [
-                'text' => $this->translationService->translate($validatedData['text'], $request->user()->locale, $lang),
-            ];
-        }
-    }
-
-    $question->translations = $questionTranslations;
-    $question->save();
-
-    return response()->json([
-        'message' => 'Question and answers created successfully',
-        'question' => $question,
-        'answers' => $answers
-    ], 201);
 }
+
+
     /**
      * Display the specified resource.
      */

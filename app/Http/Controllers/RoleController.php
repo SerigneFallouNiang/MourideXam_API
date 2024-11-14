@@ -99,7 +99,7 @@ class RoleController extends Controller
     }
 
        // Vérifier si le rôle a un ID 1, 2, 3 ou 4 (rôles par défaut)
-       if (in_array($role->id, [1, 2, 3, 5])) {
+       if (in_array($role->id, [1, 2, 3, 4])) {
         return response()->json(['error' => "Vous n'êtes pas autorisé à modifier ce rôle"], 403);
     }
 
@@ -128,7 +128,7 @@ class RoleController extends Controller
         }
 
          // Vérifier si le rôle a un ID 1, 2, 3 ou 4 (rôles par défaut)
-        if (in_array($role->id, [1, 2, 3, 5])) {
+        if (in_array($role->id, [1, 2, 3, 4])) {
             return response()->json(['error' => "Vous n'êtes pas autorisé à supprimer ce rôle"], 403);
         }
     
