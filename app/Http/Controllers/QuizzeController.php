@@ -334,24 +334,87 @@ public function submitQuiz(Request $request, $quizId)
 
 
 //pour récupérer les information d'un quiz déja passer
+// public function showPassedQuiz($quizId)
+// {
+//     $user = Auth::user();
+    
+//     // Vérifier si l'utilisateur est authentifié
+//     if (!$user) {
+//         return response()->json([
+//             'message' => $this->translationService->translate('Utilisateur non authentifié', config('app.locale')),
+//         ], 401);
+//     }
+
+//     // Récupérer les résultats du quiz passé
+//     $quizResult = QuizResult::with(['quiz'])
+//         ->where('user_id', $user->id)
+//         ->where('quiz_id', $quizId)
+//         ->latest()
+//         ->first();
+
+//     if (!$quizResult) {
+//         return response()->json([
+//             'message' => $this->translationService->translate('Aucun résultat trouvé pour ce quiz', $user->locale),
+//         ], 404);
+//     }
+
+//     // Décoder les réponses stockées en JSON
+//     $userAnswers = json_decode($quizResult->answers, true);
+//     $detailedResults = [];
+
+//     foreach ($userAnswers as $answer) {
+//         // Récupérer la question avec ses traductions
+//         $question = Question::find($answer['question']['id']);
+        
+//         if (!$question) {
+//             continue;
+//         }
+
+//         $detailedResults[] = [
+//             'question' => [
+//                 'id' => $question->id,
+//                 'text' => $question->translations[$user->locale]['text'] ?? $question->text,
+//             ],
+//             'answers' => collect($answer['answers'])->map(function ($ans) use ($user) {
+//                 return [
+//                     'id' => $ans['id'],
+//                     'text' => $ans['text'],
+//                     'is_correct' => $ans['is_correct'],
+//                     'user_selected' => $ans['user_selected'],
+//                 ];
+//             }),
+//             'is_correct' => $answer['is_correct'],
+//         ];
+//     }
+
+//     // Retourner les résultats détaillés
+//     return response()->json([
+//         'message' => $this->translationService->translate('Résultats du quiz', $user->locale),
+//         'quiz_id' => $quizResult->quiz_id,
+//         'quiz_title' => $quizResult->quiz->translations[$user->locale]['title'] ?? $quizResult->quiz->title,
+//         'score' => $quizResult->score,
+//         'is_passed' => $quizResult->is_passed,
+//         'detailedResults' => $detailedResults,
+//     ]);
+// }
 public function showPassedQuiz($quizId)
 {
     $user = Auth::user();
-
+    
     // Vérifier si l'utilisateur est authentifié
     if (!$user) {
         return response()->json([
-            'message' => $this->translationService->translate('Utilisateur non authentifié', $user->locale),
+            'message' => $this->translationService->translate('Utilisateur non authentifié', config('app.locale')),
         ], 401);
     }
 
     // Récupérer les résultats du quiz passé
-    $quizResult = QuizResult::where('user_id', $user->id)
-                            ->where('quiz_id', $quizId)
-                            ->latest()
-                            ->first();
+    $quizResult = QuizResult::with(['quiz'])
+        ->where('user_id', $user->id)
+        ->where('quiz_id', $quizId)
+        ->latest()
+        ->first();
 
-    // Vérifier si l'utilisateur a déjà passé ce quiz
     if (!$quizResult) {
         return response()->json([
             'message' => $this->translationService->translate('Aucun résultat trouvé pour ce quiz', $user->locale),
@@ -360,36 +423,50 @@ public function showPassedQuiz($quizId)
 
     // Décoder les réponses stockées en JSON
     $userAnswers = json_decode($quizResult->answers, true);
-
     $detailedResults = [];
 
     foreach ($userAnswers as $answer) {
+        // Récupérer la question avec ses traductions
+        $question = Question::find($answer['question']['id']);
+        
+        if (!$question) {
+            continue;
+        }
+
+        // Récupérer toutes les réponses de la question avec leurs traductions
+        $questionAnswers = Answer::whereIn('id', collect($answer['answers'])->pluck('id'))->get();
+
+        $translatedAnswers = collect($answer['answers'])->map(function ($ans) use ($questionAnswers, $user) {
+            $answerModel = $questionAnswers->find($ans['id']);
+            return [
+                'id' => $ans['id'],
+                'text' => $answerModel ? ($answerModel->translations[$user->locale]['text'] ?? $ans['text']) : $ans['text'],
+                'is_correct' => $ans['is_correct'],
+                'user_selected' => $ans['user_selected'],
+            ];
+        });
+
         $detailedResults[] = [
             'question' => [
-                'id' => $answer['question']['id'],
-                'text' => $this->translationService->translate($answer['question']['text'], $user->locale),
+                'id' => $question->id,
+                'text' => $question->translations[$user->locale]['text'] ?? $question->text,
             ],
-            'answers' => collect($answer['answers'])->map(function ($ans) use ($user) {
-                return [
-                    'id' => $ans['id'],
-                    'text' => $this->translationService->translate($ans['text'], $user->locale),
-                    'is_correct' => $ans['is_correct'],
-                    'user_selected' => $ans['user_selected'],
-                ];
-            }),
+            'answers' => $translatedAnswers,
             'is_correct' => $answer['is_correct'],
         ];
     }
 
-    // Retourner les résultats détaillés avec les questions et les réponses sélectionnées
+    // Retourner les résultats détaillés
     return response()->json([
         'message' => $this->translationService->translate('Résultats du quiz', $user->locale),
         'quiz_id' => $quizResult->quiz_id,
+        'quiz_title' => $quizResult->quiz->translations[$user->locale]['title'] ?? $quizResult->quiz->title,
         'score' => $quizResult->score,
         'is_passed' => $quizResult->is_passed,
         'detailedResults' => $detailedResults,
     ]);
 }
+
 
 //pour la disponiblité du quiz
 public function checkLastAttempt($quizId)
