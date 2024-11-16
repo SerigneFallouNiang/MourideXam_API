@@ -26,7 +26,7 @@ namespace App\Http\Controllers\Annotations ;
  *
 
  * @OA\POST(
- *     path="/api/quiz/submit/3",
+ *     path="/api/quiz/submit/{quizId}",
  *     summary="Passer un quiz par rapport à un chapite",
  *     description="",
  *         security={
@@ -36,6 +36,8 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="400", description="Bad Request"),
  * @OA\Response(response="401", description="Unauthorized"),
  * @OA\Response(response="403", description="Forbidden"),
+ *     @OA\Parameter(in="path", name="quizId", required=false, @OA\Schema(type="string")
+ * ),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
  *     @OA\RequestBody(
@@ -56,7 +58,7 @@ namespace App\Http\Controllers\Annotations ;
 
 
  * @OA\GET(
- *     path="/api/quiz/start/6",
+ *     path="/api/quiz/start/{chapterId}",
  *     summary="Liste question reponse pour un quiz",
  *     description="",
  *         security={
@@ -65,6 +67,8 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="200", description="OK"),
  * @OA\Response(response="404", description="Not Found"),
  * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="chapterId", required=false, @OA\Schema(type="string")
+ * ),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
  *     @OA\RequestBody(

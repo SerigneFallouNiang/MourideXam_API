@@ -43,7 +43,7 @@ namespace App\Http\Controllers\Annotations ;
 
  * @OA\POST(
  *     path="/api/questions",
- *     summary="Ajouter questions",
+ *     summary="Ajouter questions  json",
  *     description="",
  *         security={
  *    {       "BearerAuth": {}}
@@ -66,6 +66,8 @@ namespace App\Http\Controllers\Annotations ;
  *                 type="object",
  *                 properties={
  *                     @OA\Property(property="text", type="string"),
+ *                     @OA\Property(property="points", type="integer"),
+ *                     @OA\Property(property="answers", type="string", format="binary"),
  *                 },
  *             ),
  *         ),
@@ -75,7 +77,7 @@ namespace App\Http\Controllers\Annotations ;
 
 
  * @OA\GET(
- *     path="/api/questions/1",
+ *     path="/api/questions/{question}",
  *     summary="Détail question questions",
  *     description="",
  *         security={
@@ -84,44 +86,16 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="200", description="OK"),
  * @OA\Response(response="404", description="Not Found"),
  * @OA\Response(response="500", description="Internal Server Error"),
- *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
- * ),
- *     tags={"Questions"},
-*),
-
-
- * @OA\PUT(
- *     path="/api/questions/1",
- *     summary="Modifier questions",
- *     description="",
- *         security={
- *    {       "BearerAuth": {}}
- *         },
- * @OA\Response(response="200", description="OK"),
- * @OA\Response(response="404", description="Not Found"),
- * @OA\Response(response="500", description="Internal Server Error"),
- *     @OA\Parameter(in="path", name="text", required=false, @OA\Schema(type="string")
+ *     @OA\Parameter(in="path", name="question", required=false, @OA\Schema(type="string")
  * ),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
- *     @OA\RequestBody(
- *         required=true,
- *         @OA\MediaType(
- *             mediaType="application/x-www-form-urlencoded",
- *             @OA\Schema(
- *                 type="object",
- *                 properties={
- *                     @OA\Property(property="text", type="string"),
- *                 },
- *             ),
- *         ),
- *     ),
  *     tags={"Questions"},
 *),
 
 
  * @OA\DELETE(
- *     path="/api/questions/2",
+ *     path="/api/questions/{question}",
  *     summary="Supprimer une question",
  *     description="",
  *         security={
@@ -131,8 +105,41 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="401", description="Unauthorized"),
  * @OA\Response(response="403", description="Forbidden"),
  * @OA\Response(response="404", description="Not Found"),
+ *     @OA\Parameter(in="path", name="question", required=false, @OA\Schema(type="string")
+ * ),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
+ *     tags={"Questions"},
+*),
+
+
+ * @OA\POST(
+ *     path="/api/questions/{question}",
+ *     summary="Modifier questions",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="201", description="Created successfully"),
+ * @OA\Response(response="400", description="Bad Request"),
+ * @OA\Response(response="401", description="Unauthorized"),
+ * @OA\Response(response="403", description="Forbidden"),
+ *     @OA\Parameter(in="path", name="question", required=false, @OA\Schema(type="string")
+ * ),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\MediaType(
+ *             mediaType="multipart/form-data",
+ *             @OA\Schema(
+ *                 type="object",
+ *                 properties={
+ *                     @OA\Property(property="text", type="string"),
+ *                 },
+ *             ),
+ *         ),
+ *     ),
  *     tags={"Questions"},
 *),
 

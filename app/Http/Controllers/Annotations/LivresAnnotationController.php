@@ -25,6 +25,42 @@ namespace App\Http\Controllers\Annotations ;
 
  *
 
+ * @OA\GET(
+ *     path="/api/books/{bookId}/chapters",
+ *     summary="liste chapitre d'un livre",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="200", description="OK"),
+ * @OA\Response(response="404", description="Not Found"),
+ * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="bookId", required=false, @OA\Schema(type="string")
+ * ),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     tags={"Livres"},
+*),
+
+
+ * @OA\GET(
+ *     path="/api/books/{book}",
+ *     summary="edit livre",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="200", description="OK"),
+ * @OA\Response(response="404", description="Not Found"),
+ * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="book", required=false, @OA\Schema(type="string")
+ * ),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     tags={"Livres"},
+*),
+
+
  * @OA\DELETE(
  *     path="/api/books/{book}",
  *     summary="Supprimer un livre",
@@ -79,6 +115,22 @@ namespace App\Http\Controllers\Annotations ;
 
 
  * @OA\GET(
+ *     path="/api/books/count",
+ *     summary="Le nombre de  Livres",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="200", description="OK"),
+ * @OA\Response(response="404", description="Not Found"),
+ * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     tags={"Livres"},
+*),
+
+
+ * @OA\GET(
  *     path="/api/books",
  *     summary="Lister les livres",
  *     description="",
@@ -122,24 +174,6 @@ namespace App\Http\Controllers\Annotations ;
  *             ),
  *         ),
  *     ),
- *     tags={"Livres"},
-*),
-
-
- * @OA\GET(
- *     path="/api/books/3/chapters",
- *     summary="liste chapitre d'un livre",
- *     description="",
- *         security={
- *    {       "BearerAuth": {}}
- *         },
- * @OA\Response(response="200", description="OK"),
- * @OA\Response(response="404", description="Not Found"),
- * @OA\Response(response="500", description="Internal Server Error"),
- *     @OA\Parameter(in="path", name="id", required=false, @OA\Schema(type="string")
- * ),
- *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
- * ),
  *     tags={"Livres"},
 *),
 

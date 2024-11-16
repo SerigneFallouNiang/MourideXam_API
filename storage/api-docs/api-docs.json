@@ -23,6 +23,222 @@
         "multipart/form-data"
     ],
     "paths": {
+        "/api/set-language": {
+            "post": {
+                "summary": "Définire langue",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Traduction"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "language": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "language": "ar"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/books/read-chapters/user/{userId}": {
+            "get": {
+                "summary": "historique user sur dashbord",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Progression de l'utilisateur"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "userId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/books/{bookId}/chapters": {
+            "get": {
+                "summary": "liste chapitre d'un livre",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Livres"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "bookId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/books/read-chapters/user": {
+            "get": {
+                "summary": "historie des livre terminés",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Progression de l'utilisateur"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/user-progress": {
             "get": {
                 "summary": "Progression de l'utilisateur",
@@ -68,7 +284,7 @@
                 ]
             }
         },
-        "/api/quiz/submit/3": {
+        "/api/quiz/submit/{quizId}": {
             "post": {
                 "summary": "Passer un quiz par rapport à un chapite",
                 "description": "",
@@ -115,6 +331,11 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "quizId",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
@@ -140,23 +361,23 @@
                                 "answers": [
                                     {
                                         "question_id": 1,
-                                        "answer_id": 3
+                                        "answer_id": 1
                                     },
                                     {
                                         "question_id": 2,
-                                        "answer_id": 6
+                                        "answer_id": 1
                                     },
                                     {
                                         "question_id": 3,
-                                        "answer_id": 7
+                                        "answer_id": 1
                                     },
                                     {
                                         "question_id": 4,
-                                        "answer_id": 12
+                                        "answer_id": 2
                                     },
                                     {
                                         "question_id": 5,
-                                        "answer_id": 1
+                                        "answer_id": 2
                                     }
                                 ]
                             }
@@ -165,7 +386,7 @@
                 }
             }
         },
-        "/api/quiz/start/6": {
+        "/api/quiz/start/{chapterId}": {
             "get": {
                 "summary": "Liste question reponse pour un quiz",
                 "description": "",
@@ -202,6 +423,11 @@
                     "user_quiz_results"
                 ],
                 "parameters": [
+                    {
+                        "in": "path",
+                        "name": "chapterId",
+                        "type": "string"
+                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -255,6 +481,56 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/quiz/passed/{quizId}": {
+            "get": {
+                "summary": "quizze déja réaliser par utilisateur",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Quizzes"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "quizId",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
             }
         },
         "/api/answers": {
@@ -327,7 +603,7 @@
                                 }
                             },
                             "example": {
-                                "text": "réponse 3 Q5",
+                                "text": "le pays des diables",
                                 "correct_one": "0",
                                 "question_id": "5"
                             }
@@ -379,7 +655,7 @@
                 ]
             }
         },
-        "/api/answers/1": {
+        "/api/answers/{answer}": {
             "put": {
                 "summary": "Modifier une réponse",
                 "description": "",
@@ -418,17 +694,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "text",
-                        "type": "string"
-                    },
-                    {
-                        "in": "path",
-                        "name": "correct_one",
-                        "type": "string"
-                    },
-                    {
-                        "in": "path",
-                        "name": "question_id",
+                        "name": "answer",
                         "type": "string"
                     },
                     {
@@ -455,16 +721,14 @@
                                 }
                             },
                             "example": {
-                                "text": "\"Updated answer text\"",
+                                "text": "test modification reponse",
                                 "correct_one": "false",
                                 "question_id": "1"
                             }
                         }
                     }
                 }
-            }
-        },
-        "/api/answers/5": {
+            },
             "delete": {
                 "summary": "Supprimer une réponse",
                 "description": "",
@@ -510,6 +774,11 @@
                     "Réponse question"
                 ],
                 "parameters": [
+                    {
+                        "in": "path",
+                        "name": "answer",
+                        "type": "string"
+                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -580,7 +849,7 @@
                 ]
             },
             "post": {
-                "summary": "Ajouter questions",
+                "summary": "Ajouter questions  json",
                 "description": "",
                 "responses": {
                     "201": {
@@ -648,18 +917,44 @@
                                 "properties": {
                                     "text": {
                                         "type": "string"
+                                    },
+                                    "points": {
+                                        "type": "integer"
+                                    },
+                                    "answers": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 }
                             },
                             "example": {
-                                "text": "Question 7"
+                                "text": "Quelle est la capitale de la France?",
+                                "points": 10,
+                                "answers": [
+                                    {
+                                        "text": "Paris",
+                                        "correct_one": true
+                                    },
+                                    {
+                                        "text": "Londres",
+                                        "correct_one": false
+                                    },
+                                    {
+                                        "text": "Berlin",
+                                        "correct_one": false
+                                    },
+                                    {
+                                        "text": "Madrid",
+                                        "correct_one": false
+                                    }
+                                ]
                             }
                         }
                     }
                 }
             }
         },
-        "/api/questions/1": {
+        "/api/questions/{question}": {
             "get": {
                 "summary": "Détail question questions",
                 "description": "",
@@ -697,79 +992,17 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "question",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
                     }
                 ]
             },
-            "put": {
-                "summary": "Modifier questions",
-                "description": "",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    }
-                },
-                "tags": [
-                    "Questions"
-                ],
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "text",
-                        "type": "string"
-                    },
-                    {
-                        "in": "header",
-                        "name": "User-Agent",
-                        "type": "string"
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "text": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "example": {
-                                "text": "Question8"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/questions/2": {
             "delete": {
                 "summary": "Supprimer une question",
                 "description": "",
@@ -816,11 +1049,90 @@
                 ],
                 "parameters": [
                     {
+                        "in": "path",
+                        "name": "question",
+                        "type": "string"
+                    },
+                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
                     }
                 ]
+            },
+            "post": {
+                "summary": "Modifier questions",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Questions"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "question",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "text": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "text": "test modification question traduit"
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/quizzes/{quizze}": {
@@ -1070,14 +1382,12 @@
                                 }
                             },
                             "example": {
-                                "title": "Nahju préambule",
-                                "chapter_id": 6,
+                                "title": "exercice1 de teste",
+                                "chapter_id": 20,
                                 "questions": [
                                     1,
-                                    2,
-                                    3,
-                                    4,
-                                    5
+                                    19,
+                                    23
                                 ]
                             }
                         }
@@ -1135,7 +1445,105 @@
                 ]
             }
         },
+        "/api/admin/quizzes": {
+            "get": {
+                "summary": "Liste des quiz avec chapitre appartenir",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Quizzes"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
         "/api/roles/{role}": {
+            "get": {
+                "summary": "detail roles",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Rôles"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "role",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            },
             "delete": {
                 "summary": "Supprimer un rôle",
                 "description": "",
@@ -1394,9 +1802,9 @@
                 }
             }
         },
-        "/api/chapter/1/download": {
+        "/api/books/{book}": {
             "get": {
-                "summary": "livre en pdf",
+                "summary": "edit livre",
                 "description": "",
                 "responses": {
                     "200": {
@@ -1428,54 +1836,14 @@
                     }
                 },
                 "tags": [
-                    "Chapitres"
+                    "Livres"
                 ],
                 "parameters": [
                     {
-                        "in": "header",
-                        "name": "User-Agent",
+                        "in": "path",
+                        "name": "book",
                         "type": "string"
-                    }
-                ]
-            }
-        },
-        "/api/books/{book}": {
-            "get": {
-                "summary": "Liste livre par chapitre",
-                "description": "",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
                     },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": ""
-                            }
-                        }
-                    }
-                },
-                "tags": [
-                    "Chapitres"
-                ],
-                "parameters": [
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -1618,12 +1986,12 @@
                                 }
                             },
                             "example": {
-                                "title": "Mowahibou",
+                                "title": "Mowahibou1",
                                 "image": {
                                     "type": "string",
                                     "format": "binary"
                                 },
-                                "description": "MowahibouNaafih",
+                                "description": "MowahibouNaafih1",
                                 "category_id": "1"
                             }
                         }
@@ -1632,6 +2000,54 @@
             }
         },
         "/api/chapters/{chapter}": {
+            "get": {
+                "summary": "Edit chapitre",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Chapitres"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "chapter",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            },
             "delete": {
                 "summary": "Supprimer Chapitre",
                 "description": "",
@@ -1689,12 +2105,12 @@
                     }
                 ]
             },
-            "put": {
+            "post": {
                 "summary": "Modifier chapitre",
                 "description": "",
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created successfully",
                         "content": {
                             "application/json": {
                                 "schema": {},
@@ -1702,8 +2118,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "400": {
+                        "description": "Bad Request",
                         "content": {
                             "application/json": {
                                 "schema": {},
@@ -1711,8 +2127,17 @@
                             }
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "content": {
                             "application/json": {
                                 "schema": {},
@@ -1738,15 +2163,13 @@
                 ],
                 "requestBody": {
                     "content": {
-                        "application/x-www-form-urlencoded": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "title": {
-                                        "type": "string"
-                                    },
-                                    "lien": {
-                                        "type": "string"
+                                    "video": {
+                                        "type": "string",
+                                        "format": "binary"
                                     },
                                     "description": {
                                         "type": "string"
@@ -1755,20 +2178,26 @@
                                         "type": "string",
                                         "format": "binary"
                                     },
+                                    "title": {
+                                        "type": "string"
+                                    },
                                     "book_id": {
                                         "type": "string"
                                     }
                                 }
                             },
                             "example": {
-                                "title": "Priere1",
-                                "lien": "https://www.youtube.com/watch?v=9HcnEklXGsk&t=147s",
-                                "description": "lapriere",
+                                "video": {
+                                    "type": "string",
+                                    "format": "binary"
+                                },
+                                "description": "la priere12345",
                                 "pdf": {
                                     "type": "string",
                                     "format": "binary"
                                 },
-                                "book_id": "2"
+                                "title": "Priere",
+                                "book_id": "5"
                             }
                         }
                     }
@@ -1876,11 +2305,15 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
+                                    "lien": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
-                                    "lien": {
-                                        "type": "string"
+                                    "video": {
+                                        "type": "string",
+                                        "format": "binary"
                                     },
                                     "description": {
                                         "type": "string"
@@ -1895,18 +2328,67 @@
                                 }
                             },
                             "example": {
-                                "title": "Lapriere",
-                                "lien": "https://www.youtube.com/watch?v=9HcnEklXGsk&t=147s",
-                                "description": "chapitre 5",
+                                "lien": "https://www.youtube.com/watch?v=Pyf7MH_RH_Q",
+                                "title": "Chapitre en or testS3",
+                                "video": {
+                                    "type": "string",
+                                    "format": "binary"
+                                },
+                                "description": "description en or",
                                 "pdf": {
                                     "type": "string",
                                     "format": "binary"
                                 },
-                                "book_id": "2"
+                                "book_id": "30"
                             }
                         }
                     }
                 }
+            }
+        },
+        "/api/books/count": {
+            "get": {
+                "summary": "Le nombre de  Livres",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Livres"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
             }
         },
         "/api/books": {
@@ -2026,22 +2508,22 @@
                                 }
                             },
                             "example": {
-                                "title": "Touhfatou",
+                                "title": "Titre Livre",
                                 "image": {
                                     "type": "string",
                                     "format": "binary"
                                 },
-                                "description": "Xam-xam",
-                                "category_id": "1"
+                                "description": "Description Livre",
+                                "category_id": "12"
                             }
                         }
                     }
                 }
             }
         },
-        "/api/books/3/chapters": {
+        "/api/categories/count": {
             "get": {
-                "summary": "liste chapitre d'un livre",
+                "summary": "Nombre total des catégories",
                 "description": "",
                 "responses": {
                     "200": {
@@ -2073,14 +2555,9 @@
                     }
                 },
                 "tags": [
-                    "Livres"
+                    "Categories"
                 ],
                 "parameters": [
-                    {
-                        "in": "path",
-                        "name": "id",
-                        "type": "string"
-                    },
                     {
                         "in": "header",
                         "name": "User-Agent",
@@ -2090,6 +2567,54 @@
             }
         },
         "/api/categories/{category}": {
+            "get": {
+                "summary": "Detail catégorie",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Categories"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "category",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            },
             "delete": {
                 "summary": "Supprimer - categorie",
                 "description": "",
@@ -2147,8 +2672,88 @@
                     }
                 ]
             },
-            "put": {
+            "post": {
                 "summary": "modifier-categorie",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Categories"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "category",
+                        "type": "string"
+                    },
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "name": "TTTTTTTTTTTTTTTT",
+                                "description": "BBBBBBBBBBBBB"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/categories/{categoryId}/books": {
+            "get": {
+                "summary": "Liste des livre d'un categorie",
                 "description": "",
                 "responses": {
                     "200": {
@@ -2185,22 +2790,7 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "name",
-                        "type": "string"
-                    },
-                    {
-                        "in": "path",
-                        "name": "description",
-                        "type": "string"
-                    },
-                    {
-                        "in": "path",
-                        "name": "category",
-                        "type": "string"
-                    },
-                    {
-                        "in": "path",
-                        "name": "",
+                        "name": "categoryId",
                         "type": "string"
                     },
                     {
@@ -2208,28 +2798,7 @@
                         "name": "User-Agent",
                         "type": "string"
                     }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "example": {
-                                "name": "Alkhourane",
-                                "description": "Les xassida des allathalanabi"
-                            }
-                        }
-                    }
-                }
+                ]
             }
         },
         "/api/categories": {
@@ -2346,8 +2915,8 @@
                                 }
                             },
                             "example": {
-                                "name": "Khassida",
-                                "description": "Les xassidadesallathalanabi",
+                                "name": "Fairebbbbbbbbbbbbbbbbbb",
+                                "description": "Faire",
                                 "image": {
                                     "type": "string",
                                     "format": "binary"
@@ -2356,6 +2925,179 @@
                         }
                     }
                 }
+            }
+        },
+        "/api/update-profile": {
+            "post": {
+                "summary": "Modifier son profil",
+                "description": "",
+                "responses": {
+                    "201": {
+                        "description": "Created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Authentification"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "telephone": {
+                                        "type": "string"
+                                    },
+                                    "locale": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "name": "Nouvel Nom",
+                                "email": "nouveau.email@example.com",
+                                "telephone": "1234567890",
+                                "locale": "fr"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/nomber-user": {
+            "get": {
+                "summary": "le nombre es utilisateurs",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Authentification"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "/api/utilisateurs": {
+            "get": {
+                "summary": "récupération des utilisateurs",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": ""
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Authentification"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "User-Agent",
+                        "type": "string"
+                    }
+                ]
             }
         },
         "/api/user/profile": {
@@ -2510,41 +3252,48 @@
                 ],
                 "parameters": [
                     {
-                        "in": "path",
-                        "name": "name",
-                        "type": "string"
-                    },
-                    {
-                        "in": "path",
-                        "name": "email",
-                        "type": "string"
-                    },
-                    {
-                        "in": "path",
-                        "name": "password",
-                        "type": "string"
-                    },
-                    {
-                        "in": "path",
-                        "name": "password_confirmation",
-                        "type": "string"
-                    },
-                    {
-                        "in": "path",
-                        "name": "telephone",
-                        "type": "string"
-                    },
-                    {
-                        "in": "path",
-                        "name": "progress",
-                        "type": "string"
-                    },
-                    {
                         "in": "header",
                         "name": "User-Agent",
                         "type": "string"
                     }
-                ]
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string"
+                                    },
+                                    "telephone": {
+                                        "type": "string"
+                                    },
+                                    "": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "example": {
+                                "name": "françaisndiayess",
+                                "email": "serignefallouniang776@gmail.com",
+                                "password": "password",
+                                "password_confirmation": "password",
+                                "telephone": "12345777777777",
+                                "": ""
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/login": {
@@ -2614,7 +3363,7 @@
                                 }
                             },
                             "example": {
-                                "email": "fallouniang776@gmail.com",
+                                "email": "niang.serignefallou@unchk.edu.sn",
                                 "password": "password"
                             }
                         }

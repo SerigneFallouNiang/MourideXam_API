@@ -26,6 +26,24 @@ namespace App\Http\Controllers\Annotations ;
  *
 
  * @OA\GET(
+ *     path="/api/quiz/passed/{quizId}",
+ *     summary="quizze déja réaliser par utilisateur",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="200", description="OK"),
+ * @OA\Response(response="404", description="Not Found"),
+ * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="quizId", required=false, @OA\Schema(type="string")
+ * ),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     tags={"Quizzes"},
+*),
+
+
+ * @OA\GET(
  *     path="/api/quizzes/{quizze}",
  *     summary="Détail Quiz",
  *     description="",
@@ -135,6 +153,24 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="404", description="Not Found"),
  * @OA\Response(response="500", description="Internal Server Error"),
  *     @OA\Parameter(in="path", name="quizId", required=false, @OA\Schema(type="string")
+ * ),
+ *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ * ),
+ *     tags={"Quizzes"},
+*),
+
+
+ * @OA\GET(
+ *     path="/api/admin/quizzes",
+ *     summary="Liste des quiz avec chapitre appartenir",
+ *     description="",
+ *         security={
+ *    {       "BearerAuth": {}}
+ *         },
+ * @OA\Response(response="200", description="OK"),
+ * @OA\Response(response="404", description="Not Found"),
+ * @OA\Response(response="500", description="Internal Server Error"),
+ *     @OA\Parameter(in="path", name="", required=false, @OA\Schema(type="string")
  * ),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
