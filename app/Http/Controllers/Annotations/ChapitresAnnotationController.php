@@ -26,8 +26,8 @@ namespace App\Http\Controllers\Annotations ;
  *
 
  * @OA\GET(
- *     path="/api/chapter/1/download",
- *     summary="livre en pdf",
+ *     path="/api/chapters/{chapter}",
+ *     summary="Edit chapitre",
  *     description="",
  *         security={
  *    {       "BearerAuth": {}}
@@ -35,22 +35,8 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="200", description="OK"),
  * @OA\Response(response="404", description="Not Found"),
  * @OA\Response(response="500", description="Internal Server Error"),
- *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
+ *     @OA\Parameter(in="path", name="chapter", required=false, @OA\Schema(type="string")
  * ),
- *     tags={"Chapitres"},
-*),
-
-
- * @OA\GET(
- *     path="/api/books/{book}",
- *     summary="Liste livre par chapitre",
- *     description="",
- *         security={
- *    {       "BearerAuth": {}}
- *         },
- * @OA\Response(response="200", description="OK"),
- * @OA\Response(response="404", description="Not Found"),
- * @OA\Response(response="500", description="Internal Server Error"),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
  *     tags={"Chapitres"},
@@ -76,16 +62,17 @@ namespace App\Http\Controllers\Annotations ;
 *),
 
 
- * @OA\PUT(
+ * @OA\POST(
  *     path="/api/chapters/{chapter}",
  *     summary="Modifier chapitre",
  *     description="",
  *         security={
  *    {       "BearerAuth": {}}
  *         },
- * @OA\Response(response="200", description="OK"),
- * @OA\Response(response="404", description="Not Found"),
- * @OA\Response(response="500", description="Internal Server Error"),
+ * @OA\Response(response="201", description="Created successfully"),
+ * @OA\Response(response="400", description="Bad Request"),
+ * @OA\Response(response="401", description="Unauthorized"),
+ * @OA\Response(response="403", description="Forbidden"),
  *     @OA\Parameter(in="path", name="chapter", required=false, @OA\Schema(type="string")
  * ),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
@@ -93,14 +80,14 @@ namespace App\Http\Controllers\Annotations ;
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\MediaType(
- *             mediaType="application/x-www-form-urlencoded",
+ *             mediaType="multipart/form-data",
  *             @OA\Schema(
  *                 type="object",
  *                 properties={
- *                     @OA\Property(property="title", type="string"),
- *                     @OA\Property(property="lien", type="string"),
+ *                     @OA\Property(property="video", type="string", format="binary"),
  *                     @OA\Property(property="description", type="string"),
  *                     @OA\Property(property="pdf", type="string", format="binary"),
+ *                     @OA\Property(property="title", type="string"),
  *                     @OA\Property(property="book_id", type="string"),
  *                 },
  *             ),
@@ -146,8 +133,9 @@ namespace App\Http\Controllers\Annotations ;
  *             @OA\Schema(
  *                 type="object",
  *                 properties={
- *                     @OA\Property(property="title", type="string"),
  *                     @OA\Property(property="lien", type="string"),
+ *                     @OA\Property(property="title", type="string"),
+ *                     @OA\Property(property="video", type="string", format="binary"),
  *                     @OA\Property(property="description", type="string"),
  *                     @OA\Property(property="pdf", type="string", format="binary"),
  *                     @OA\Property(property="book_id", type="string"),

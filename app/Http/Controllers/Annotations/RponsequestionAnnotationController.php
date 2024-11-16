@@ -73,7 +73,7 @@ namespace App\Http\Controllers\Annotations ;
 
 
  * @OA\PUT(
- *     path="/api/answers/1",
+ *     path="/api/answers/{answer}",
  *     summary="Modifier une réponse",
  *     description="",
  *         security={
@@ -82,11 +82,7 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="200", description="OK"),
  * @OA\Response(response="404", description="Not Found"),
  * @OA\Response(response="500", description="Internal Server Error"),
- *     @OA\Parameter(in="path", name="text", required=false, @OA\Schema(type="string")
- * ),
- *     @OA\Parameter(in="path", name="correct_one", required=false, @OA\Schema(type="string")
- * ),
- *     @OA\Parameter(in="path", name="question_id", required=false, @OA\Schema(type="string")
+ *     @OA\Parameter(in="path", name="answer", required=false, @OA\Schema(type="string")
  * ),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
@@ -109,7 +105,7 @@ namespace App\Http\Controllers\Annotations ;
 
 
  * @OA\DELETE(
- *     path="/api/answers/5",
+ *     path="/api/answers/{answer}",
  *     summary="Supprimer une réponse",
  *     description="",
  *         security={
@@ -119,6 +115,8 @@ namespace App\Http\Controllers\Annotations ;
  * @OA\Response(response="401", description="Unauthorized"),
  * @OA\Response(response="403", description="Forbidden"),
  * @OA\Response(response="404", description="Not Found"),
+ *     @OA\Parameter(in="path", name="answer", required=false, @OA\Schema(type="string")
+ * ),
  *     @OA\Parameter(in="header", name="User-Agent", required=false, @OA\Schema(type="string")
  * ),
  *     @OA\RequestBody(

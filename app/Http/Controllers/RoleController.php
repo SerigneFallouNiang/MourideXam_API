@@ -10,14 +10,15 @@ use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'store']]);
-    //     $this->middleware('permission:role-create', ['only' => ['store']]);
-    //     $this->middleware('permission:role-edit', ['only' => ['update']]);
-    //     $this->middleware('permission:role-delete', ['only' => ['destroy']]);
-    // }
+    public function __construct()
+    {
+        $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'store']]);
+        $this->middleware('permission:role-create', ['only' => ['store']]);
+        $this->middleware('permission:role-edit', ['only' => ['update']]);
+        $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+    }
 
+    
     // Liste des rôles avec pagination
     public function index(Request $request)
     {
